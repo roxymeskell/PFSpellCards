@@ -1,0 +1,458 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{pfspellarea}[2017/10/16 Pathfinder Spell Area Package]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+\RequirePackage{xstring}
+\RequirePackage{ifthen}
+\usetikzlibrary{positioning,calc}
+
+\pgfkeys{/pgf/.cd,
+	area type/.store in=\pgfshapeareatype,
+	area type=burst,
+	area range/.store in=\pgfshapearearange,
+	area range=10,
+	grid size/.store in=\pgfshapegridsize,
+	grid size=10,
+	grid color/.store in=\pgfshapegridcolor,
+	grid color=black,
+	origin color/.store in=\pgfshapeorigincolor,
+	origin color=gray,
+	area width/.store in=\pgfshapeareawidth,
+	area width=-1pt,
+	area height/.store in=\pgfshapeareaheight,
+	area height=-1pt,
+}
+\tikzoption{area type}[]{\pgfkeys{/pgf/area type=#1}}
+\tikzoption{area range}[]{\pgfkeys{/pgf/area range=#1}}
+\tikzoption{grid size}[]{\pgfkeys{/pgf/grid size=#1}}
+\tikzoption{grid color}[]{\pgfkeys{/pgf/grid color=#1}}
+\tikzoption{origin color}[]{\pgfkeys{/pgf/origin color=#1}}
+\tikzoption{area width}[]{\pgfkeys{/pgf/area width=#1}}
+\tikzoption{area height}[]{\pgfkeys{/pgf/area height=#1}}
+
+\def\squaresep{\gridsize*0.05}
+\newcommand\drawgridsquarehelper[2]{
+%	\pgfmathsetlength{\pgf@xa}{\gridsize * (#1 - 1)}
+%	\pgfmathsetlength{\pgf@xb}{\gridsize * #1 - 1}
+%	\pgfmathsetlength{\pgf@ya}{\gridsize * (#2 - 1)}
+%	\pgfmathsetlength{\pgf@yb}{\gridsize * #2 -1}
+	%\pgfmathsetlength{\pgf@xa}{\gridsize * (#1 - 0.5) + 0.5}
+	%\pgfmathsetlength{\pgf@xb}{\gridsize * (#1 + 0.5) - 0.5}
+	%\pgfmathsetlength{\pgf@ya}{\gridsize * (#2 - 0.5) + 0.5}
+	%\pgfmathsetlength{\pgf@yb}{\gridsize * (#2 + 0.5) - 0.5}
+		\pgfmathsetlength{\pgf@xa}{\gridsize * (#1 - 0.5)+\squaresep}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * (#1 + 0.5)-\squaresep}
+		\pgfmathsetlength{\pgf@ya}{\gridsize * (#2 - 0.5)+\squaresep}
+		\pgfmathsetlength{\pgf@yb}{\gridsize * (#2 + 0.5)-\squaresep}
+	%\message{Square corners for (#1, #2): (\the\pgf@xa, \the\pgf@ya) (\the\pgf@xb, \the\pgf@yb)}
+	\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+	\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+	\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+	\pgfpathclose
+}
+
+\pgfdeclareshape{area}{
+	\saveddimen{\gridsize} % Size of grid squares
+	{
+		\pgf@x = \pgfshapegridsize pt
+		\setlength{\pgf@xa}{0pt}
+		\ifdim\pgfshapeareawidth>\pgf@xa % Getting grid size based on max width
+			\str@ifmatchelse{\pgfshapeareatype}{burst}{
+				\pgfmathsetlength{\pgf@xb}{\pgfshapeareawidth / (\pgfshapearearange/5 * 2)}
+				\ifdim\pgf@x>\pgf@xb
+					\pgf@x=\pgf@xb
+				\else
+					\pgf@x=\pgf@x
+				\fi
+			}{\str@ifmatchelse{\pgfshapeareatype}{cone}{
+				\pgfmathsetlength{\pgf@xb}{\pgfshapeareawidth / (floor((\pgfshapearearange/5)*cos(45)) + (\pgfshapearearange/5 * 2))}
+				\ifdim\pgf@x>\pgf@xb
+				\pgf@x=\pgf@xb
+				\else
+				\pgf@x=\pgf@x
+				\fi
+			}{\str@ifmatchelse{\pgfshapeareatype}{line}{
+				\pgfmathparse{\pgfshapearearange}
+				\let\squares\pgfmathresult
+				\pgfmathparse{\squares + 1.5}
+				\let\squaresmod\pgfmathresult
+				\pgfmathparse{floor(\squares / 5)}
+				\let\rsquares\pgfmathresult
+				\xdef\xmodsum{1}
+				\foreach \xmax [count=\xi] in {0,...,\rsquares}{
+					\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\xmax * 5)^2))/5)}
+					\let\ymax\pgfmathresult
+					\ifthenelse{\xmax > \ymax}{\breakforeach}{
+						\xdef\xmodsum{\xmodsum+\xmax+2}
+					}
+				}
+				\pgfmathparse{\xmodsum}
+				\let\xmod\pgfmathresult
+				\pgfmathsetlength{\pgf@xb}{\pgfshapeareawidth / (\xmod - 2)}
+				\ifdim\pgf@x>\pgf@xb
+				\pgf@x=\pgf@xb
+				\else
+				\pgf@x=\pgf@x
+				\fi
+			}}}
+		\fi
+		%
+		%
+		\ifdim\pgfshapeareaheight>\pgf@xa % Getting grid size based on max height
+		\str@ifmatchelse{\pgfshapeareatype}{burst}{
+			\pgfmathsetlength{\pgf@xb}{\pgfshapeareaheight / (\pgfshapearearange/5 * 2)}
+			\ifdim\pgf@x>\pgf@xb
+			\pgf@x=\pgf@xb
+			\else
+			\pgf@x=\pgf@x
+			\fi
+		}{\str@ifmatchelse{\pgfshapeareatype}{cone}{ % May need to e fixed
+			\pgfmathsetlength{\pgf@xb}{\pgfshapeareaheight / floor(\pgfshapearearange/5)}
+			\ifdim\pgf@x>\pgf@xb
+			\pgf@x=\pgf@xb
+			\else
+			\pgf@x=\pgf@x
+			\fi
+		}{\str@ifmatchelse{\pgfshapeareatype}{line}{ % May need to be fixed
+			\pgfmathsetlength{\pgf@xb}{\pgfshapeareaheight / floor(\pgfshapearearange/5)}
+			\ifdim\pgf@x>\pgf@xb
+			\pgf@x=\pgf@xb
+			\else
+			\pgf@x=\pgf@x
+			\fi
+		}}}
+		\fi
+		%
+		%
+		\message{^^J^^JType: \pgfshapeareatype}
+		\message{Gridsize:\the\pgf@x^^J}
+	}
+	\saveddimen{\gridminx}
+	{
+		\pgf@x = 0pt
+		\str@ifmatchelse{\pgfshapeareatype}{burst}{
+			\pgfmathsetlength{\pgf@xb}{-(floor(\pgfshapearearange/5) + 0.5)}
+			\pgf@x = \pgf@xb
+		}{\str@ifmatchelse{\pgfshapeareatype}{cone}{
+			\pgfmathsetlength{\pgf@xb}{-(floor((\pgfshapearearange/5)*cos(45)) - 0.5)}
+			\pgf@x = \pgf@xb
+		}{\str@ifmatchelse{\pgfshapeareatype}{line}{
+			\pgfmathsetlength{\pgf@xb}{-0.5}
+			\pgf@x = \pgf@xb
+		}}}
+		\message{Type: \pgfshapeareatype }
+		\message{Min X:\the\pgf@x^^J}
+	}
+	\saveddimen{\gridmaxx}
+	{
+		\pgf@x = 0pt
+		\str@ifmatchelse{\pgfshapeareatype}{burst}{
+			\pgfmathsetlength{\pgf@xb}{(floor(\pgfshapearearange/5) + 0.5)}
+			\pgf@x = \pgf@xb
+			\advance\pgf@x by-1pt
+		}{\str@ifmatchelse{\pgfshapeareatype}{cone}{
+			\pgfmathsetlength{\pgf@xb}{((floor(\pgfshapearearange/5) * 2) + 0.5)}
+			\pgf@x = \pgf@xb
+		}{\str@ifmatchelse{\pgfshapeareatype}{line}{
+			\pgfmathparse{\pgfshapearearange}
+			\let\squares\pgfmathresult
+			\pgfmathparse{\squares + 1.5}
+			\let\squaresmod\pgfmathresult
+			\pgfmathparse{floor(\squares / 5)}
+			\let\rsquares\pgfmathresult
+			\xdef\xmodsum{1}
+			\foreach \xmax [count=\xi] in {0,...,\rsquares}{
+				\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\xmax * 5)^2))/5)}
+				\let\ymax\pgfmathresult
+				\ifthenelse{\xmax > \ymax}{\breakforeach}{
+					\xdef\xmodsum{\xmodsum+\xmax+2}
+				}
+			}
+			\pgfmathparse{\xmodsum}
+			\let\xmod\pgfmathresult
+			%\pgfmathsetlength{\pgf@xb}{(\xmod + floor((\pgfshapearearange/5)*cos(45)) + 0.5)}
+			\pgfmathsetlength{\pgf@xb}{\xmod - 2.5)}
+			\pgf@x = \pgf@xb
+		}}}
+		\message{Type: \pgfshapeareatype }
+		\message{Max X:\the\pgf@x^^J}
+	}
+	\saveddimen{\gridminy}
+	{
+		\pgf@xc = \pgf@y
+		\pgf@x = 0pt
+		\str@ifmatchelse{\pgfshapeareatype}{burst}{
+			\pgfmathsetlength{\pgf@xb}{-(floor(\pgfshapearearange/5) + 0.5)}
+			\pgf@x = \pgf@xb
+		}{\str@ifmatchelse{\pgfshapeareatype}{cone}{
+			\pgfmathsetlength{\pgf@xb}{-0.5}
+			\pgf@x = \pgf@xb
+		}{\str@ifmatchelse{\pgfshapeareatype}{line}{
+			\pgfmathsetlength{\pgf@xb}{-0.5}
+			\pgf@x = \pgf@xb
+		}}}
+		\message{Type: \pgfshapeareatype }
+		\message{Min Y:\the\pgf@x^^J}
+	}
+	\saveddimen{\gridmaxy}
+	{
+		\pgf@x = 0pt
+		\str@ifmatchelse{\pgfshapeareatype}{burst}{
+			\pgfmathsetlength{\pgf@xb}{(floor(\pgfshapearearange/5) + 0.5)}
+			\pgf@x = \pgf@xb
+			\advance\pgf@x by-1pt
+		}{\str@ifmatchelse{\pgfshapeareatype}{cone}{
+			\pgfmathsetlength{\pgf@xb}{(floor(\pgfshapearearange/5) + 0.5)}
+			\pgf@x = \pgf@xb
+		}{\str@ifmatchelse{\pgfshapeareatype}{line}{
+			\pgfmathsetlength{\pgf@xb}{(floor(\pgfshapearearange/5) + 0.5)}
+			\pgf@x = \pgf@xb
+		}}}
+		\message{Type: \pgfshapeareatype }
+		\message{Max Y:\the\pgf@x^^J}
+	}
+%	\saveddimen{\hshift}
+%	{
+%		\pgfmathsetlength{\pgf@x}{\gridsize * (\pgfshapearearange + 2)}
+%	}
+	\anchor{center}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * (\gridminx + \gridmaxx) / 2}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * (\gridminy + \gridmaxy) / 2}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{north}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * (\gridminx + \gridmaxx) / 2}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * \gridmaxy}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{south}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * (\gridminx + \gridmaxx) / 2}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * \gridminy}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{east}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * \gridmaxx}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * (\gridminy + \gridmaxy) / 2}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{west}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * \gridminx}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * (\gridminy + \gridmaxy) / 2}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{north east}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * \gridmaxx}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * \gridmaxy}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{south east}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * \gridmaxx}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * \gridminy}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{north west}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * \gridminx}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * \gridmaxy}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\anchor{south west}{
+		\pgfmathsetlength{\pgf@xa}{\gridsize * \gridminx}
+		\pgfmathsetlength{\pgf@xb}{\gridsize * \gridminy}
+		\pgf@x=\pgf@xa
+		\pgf@y=\pgf@xb
+	}
+	\behindbackgroundpath{
+%		\pgfpathmoveto{\pgfpoint{0pt}{0pt}}
+%		\pgfpathlineto{\pgfpoint{\gridsize}{0pt}}
+%		\pgfpathlineto{\pgfpoint{\gridsize}{\gridsize}}
+%		\pgfpathlineto{\pgfpoint{0pt}{\gridsize}}
+%		\pgfpathclose
+		
+%		\pgfmathparse{\pgfshapearearange / 5}
+%		\let\squares\pgfmathresult
+%		\pgfmathparse{\squares * 2}
+%		\let\xsquares\pgfmathresult
+%		\foreach \x in {-\squares,...,\squares}{
+%			\pgfmathsetlength{\pgf@xa}{\gridsize * (\x - 1)}
+%			\pgfmathsetlength{\pgf@xb}{\gridsize * \x - 1}
+%			\pgfmathparse{sqrt((\squares^2) - (\x^2))}
+%			\let\ysquares\pgfmathresult
+%			\foreach \y in {-\ysquares,...,\ysquares}{
+%				\pgfmathsetlength{\pgf@ya}{\gridsize * (\y - 1)}
+%				\pgfmathsetlength{\pgf@yb}{\gridsize * \y -1}
+%				\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+%				\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+%				\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+%				\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+%				\pgfpathclose
+%			}
+%		}
+		
+		
+		\str@ifmatchelse{\pgfshapeareatype}{burst}{
+			\pgfmathparse{\pgfshapearearange}
+			\let\squares\pgfmathresult
+			\pgfmathparse{\squares + 1.5}
+			\let\squaresmod\pgfmathresult
+			\pgfmathparse{floor(\squares / 5)}
+			\let\xsquares\pgfmathresult
+			\foreach \x in {-\xsquares,...,-1}{
+				\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\x * 5)^2))/5)}
+				\let\ysquares\pgfmathresult
+				\foreach \y in {-\ysquares,...,-1}{
+					\drawgridsquarehelper{\x}{\y}
+				}
+				\foreach \y in {1,...,\ysquares}{
+					\pgfmathparse{\y - 1}
+					\let\ymod\pgfmathresult
+					\drawgridsquarehelper{\x}{\ymod}
+				}
+			}
+			\foreach \x in {1,...,\xsquares}{
+				\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\x * 5)^2))/5)}
+				\let\ysquares\pgfmathresult
+				\pgfmathparse{\x - 1}
+				\let\xmod\pgfmathresult
+				\foreach \y in {-\ysquares,...,-1}{
+					\drawgridsquarehelper{\xmod}{\y}
+				}
+				\foreach \y in {1,...,\ysquares}{
+					\pgfmathparse{\y - 1}
+					\let\ymod\pgfmathresult
+					\drawgridsquarehelper{\xmod}{\ymod}
+				}
+			}
+		}{
+		\str@ifmatchelse{\pgfshapeareatype}{cone}{
+			\pgfmathparse{\pgfshapearearange}
+			\let\squares\pgfmathresult
+			\pgfmathparse{\squares + 1.5}
+			\let\squaresmod\pgfmathresult
+			\pgfmathparse{\squares / 5}
+			\let\xsquares\pgfmathresult
+			
+			\pgfmathparse{int(mod(floor(\squares/5), 2))}
+			\let\squaresodd\pgfmathresult
+			\ifthenelse{\squaresodd = 1}{
+				% If odd grid radius
+				\foreach \x in {0,...,\xsquares}{
+					\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\x * 5)^2))/5)}
+					\let\ysquares\pgfmathresult
+					\ifthenelse{\x < \ysquares}{
+						\foreach \y in {\x,...,\ysquares}{
+							\ifthenelse{\x = \y}{}{
+								\drawgridsquarehelper{\x}{\y}
+								\drawgridsquarehelper{-\x}{\y}
+							}
+						}
+					}{}
+					% Diagonal
+					\ifthenelse{\x > 0}{
+						\foreach \y in {1,...,\ysquares}{
+							\drawgridsquarehelper{\x + \xsquares}{\y}
+						}
+					}{}
+				}
+			}{
+				% If even grid radius
+				\foreach \x in {1,...,\xsquares}{
+					\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\x * 5)^2))/5)}
+					\let\ysquares\pgfmathresult
+					\ifthenelse{\x > \ysquares}{\breakforeach}{
+						\pgfmathparse{-(\x - 1)}
+						\let\xmod\pgfmathresult
+						\foreach \y in {\x,...,\ysquares}{
+							\drawgridsquarehelper{\x}{\y}
+							\drawgridsquarehelper{\xmod}{\y}
+						}
+					}
+					% Diagonal
+					\foreach \y in {1,...,\ysquares}{
+						\drawgridsquarehelper{\x + \xsquares}{\y}
+					}
+				}
+			}
+		}{
+		\str@ifmatchelse{\pgfshapeareatype}{line}{
+			\pgfmathparse{\pgfshapearearange}
+			\let\squares\pgfmathresult
+			\pgfmathparse{\squares + 1.5}
+			\let\squaresmod\pgfmathresult
+			\pgfmathparse{\squares / 5}
+			\let\rsquares\pgfmathresult
+			
+			\xdef\xmodsum{0}
+			
+			\foreach \xmax [count=\xi] in {0,...,\rsquares}{
+				\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\xmax * 5)^2))/5)}
+				\let\ymax\pgfmathresult
+				\ifthenelse{\xmax > \ymax}{\breakforeach}{
+					\foreach \y in {1,..., \ymax}{
+						\pgfmathparse{int(floor(((\y * (\xmax+1)) - 1)/ \ymax))}
+						\let\x\pgfmathresult
+						\pgfmathparse{\xmodsum}
+						\let\xmod\pgfmathresult
+						\drawgridsquarehelper{\x + \xmod}{\y}
+					}
+					\xdef\xmodsum{\xmodsum+\xmax+2}
+				}
+			}
+		}
+		}
+		}
+		
+		\color{\pgfshapegridcolor}
+		\pgfusepath{fill}
+	}
+	\backgroundpath{
+		\str@ifmatchelse{\pgfshapeareatype}{burst}{
+			\pgfpathcircle{\pgfpoint{-0.5*\gridsize}{-0.5*\gridsize}}{0.4*\gridsize}
+		}{
+			\str@ifmatchelse{\pgfshapeareatype}{cone}{
+				\pgfmathparse{\pgfshapearearange}
+				\let\squares\pgfmathresult
+				\pgfmathparse{\squares + 1.5}
+				\let\squaresmod\pgfmathresult
+				\pgfmathparse{\squares / 5}
+				\let\xsquares\pgfmathresult
+				\pgfpathcircle{\pgfpoint{0}{0}}{0.4*\gridsize}
+				\pgfpathcircle{\pgfpoint{\xsquares*\gridsize}{0}}{0.4*\gridsize}
+			}{
+				\str@ifmatchelse{\pgfshapeareatype}{line}{
+					\pgfmathparse{\pgfshapearearange}
+					\let\squares\pgfmathresult
+					\pgfmathparse{\squares + 1.5}
+					\let\squaresmod\pgfmathresult
+					\pgfmathparse{\squares / 5}
+					\let\rsquares\pgfmathresult
+					
+					\xdef\xmodsum{0}
+					
+					\foreach \xmax [count=\xi] in {0,...,\rsquares}{
+						\pgfmathparse{floor(sqrt((\squaresmod^2) - ((\xmax * 5)^2))/5)}
+						\let\ymax\pgfmathresult
+						\ifthenelse{\xmax > \ymax}{\breakforeach}{
+							\pgfmathparse{\xmodsum}
+							\let\xmod\pgfmathresult
+							\pgfpathcircle{\pgfpoint{\xmod*\gridsize}{0}}{0.4*\gridsize}
+							\xdef\xmodsum{\xmodsum+\xmax+2}
+						}
+					}
+				}
+			}
+		}
+		
+		\color{\pgfshapeorigincolor}
+		\pgfusepath{fill}
+	}
+}

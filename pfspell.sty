@@ -1,0 +1,460 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{pfspell}[2016/11/18 Pathfinder Spell Card Package]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+\RequirePackage{xstring}
+\RequirePackage{pfspellshapes}
+\RequirePackage{pfspellarea}
+\RequirePackage{pfspellcomp}
+\RequirePackage{pfspellcardframe}
+\RequirePackage{expl3}
+\expandafter\def\csname ver@l3regex.sty\endcsname{}
+\RequirePackage{l3regex}
+\usetikzlibrary{positioning,calc}
+\usetikzlibrary{backgrounds}
+
+% \RequirePackage{expl3}
+% \expandafter\def\csname ver@l3regex.sty\endcsname{} 
+
+%\PassOptionsToPackage{cardwidth=2in, cardheight=3.5in}{pfspelltikzrelativestyles}
+\DeclareOption*{
+	\show\CurrentOption
+	\PassOptionsToPackage{\CurrentOption}{pfspelltikzrelativestyles}
+	%\ClassWarning{myclass}{Unknown option '\CurrentOption'}
+}
+%% Process given options
+\ProcessOptions\relax
+
+\RequirePackage{pfspelltikzrelativestyles}
+
+% ********************
+% FONT SIZES
+% ********************
+\newcommand\extratiny{\fontsize{4pt}{4pt}\selectfont}
+
+% ********************
+% RELATIVE LENGTHS
+% ********************
+%\newlength{\tikzx}
+%\setlength{\tikzx}{1pt}
+%\newlength{\tikzy}
+%\setlength{\tikzy}{1pt}
+%1pt = 1/72.27in
+%(180,250)
+\newlength{\spacewidth}
+\setlength{\spacewidth}{\widthof{ }+1pt}
+
+
+% ********************
+% TIKZ STYLES
+% ********************
+\tikzset{
+	%nameLbl/.style={white,fill=gray,draw=none,shape=rectangle,minimum width=10pt,minimum height=10pt,text width=100pt,font=\bfseries},
+	symbol/.style={shape=symbol, anchor=symbol center, label color=white!40!gray, draw=none,minimum height=10pt, white, font=\tiny,inner sep=2pt,symbol size=1.25, text width=90pt},
+	%label/.style={white,anchor=west,fill=white!40!gray,draw=none,shape=raggedRect,font=\tiny,inner sep=0.2pt,minimum width=80pt,minimum height=8pt,text width=77pt,},
+	%raggedLbl/.style 2 args={white, anchor=west, fill=white!40!gray, draw=none, font=\tiny, inner sep=0.2pt, minimum width=#1, minimum height=#2,text width=(#1-(0.4*#2),},
+	%sectLabel/.style={anchor=west,draw,shape=underline,font=\small\bfseries,inner sep=0.2pt,minimum width=#1,minimum height=8pt,text width=(#1-0.4pt),},
+	%sect/.style={anchor=west,font=\tiny,inner sep=0.2pt,minimum width=#1,minimum height=8pt,text width=(#1-0.4pt)},
+	area/.style={shape=area, area width=90pt, area height=40pt, grid color=white!70!gray, origin color=white!40!gray}
+}
+\tikzset{uline/.style={every content node part/.style={font=\tiny}, anchor=north west, font=\bfseries, shape=underline, draw, inner sep=2pt}}
+\tikzset{details/.style={%
+		every labela node part/.style={font=\tiny\bfseries},%
+		every contenta node part/.style={font=\tiny},%
+		every labelb node part/.style={font=\tiny\bfseries},%
+		every contentb node part/.style={font=\tiny},%
+		every labelc node part/.style={font=\tiny\bfseries},%
+		every contentc node part/.style={font=\tiny},%
+		every labeld node part/.style={font=\tiny\bfseries},%
+		every contentd node part/.style={font=\tiny},%
+		anchor=north west, shape=details, draw, inner sep=1pt%
+	}}
+\tikzset{labeled/.style={%
+		every label node part/.style={font=\tiny\bfseries},%
+		every content node part/.style={font=\tiny, text width=90pt},%
+		anchor=north west, shape=labeled, draw, inner sep=1pt%
+	}}
+\tikzset{rline/.style={every content node part/.style={font=\extratiny}, anchor=north west, font=\bfseries, shape=rightline, draw, inner sep=1pt, align=right}}
+\tikzset{
+	banner/.style={
+		white,
+		align=center,
+		every content node part/.style={
+			font=\LARGE\bfseries,
+			align=center
+		},
+		anchor=north west,
+		font=\small, shape=banner, draw=none, fill=white!25!gray, inner sep=2pt, edge sep=4pt
+	}
+}
+\tikzset{component/.style={font=\tiny, shape=component symbol, draw=none, fill=black, inner sep=2pt, height=20pt}}
+
+% ********************
+% MACRO WITH VARIABLES
+% ********************
+\newtoggle{pfSpellCompVerbal}
+\newtoggle{pfSpellCompSomatic}
+\newtoggle{pfSpellCompMaterial}
+\newtoggle{pfSpellCompFocus}
+\newtoggle{pfSpellCompDivine}
+\newcommand{\pfspellSetDefaultVariables}{
+\def \pfSpellName {Name}
+\def \pfSpellClass {Class}
+\def \pfSpellLvl {0}
+\def \pfSpellTarget {[target]}
+\def \pfSpellTime {[casting time]}
+\def \pfSpellDuration {[duration]}
+\def \pfSpellRange {[range]}
+\def \pfSpellArea {[area]}
+\def \pfSpellDescr {[description]}
+\togglefalse{pfSpellCompVerbal}
+\togglefalse{pfSpellCompSomatic}
+\togglefalse{pfSpellCompMaterial}
+\togglefalse{pfSpellCompFocus}
+\togglefalse{pfSpellCompDivine}
+}
+\pfspellSetDefaultVariables
+
+% Set variables
+\newcommand{\setSpellName}[1]{\def \pfSpellName {#1}}
+\newcommand{\setSpellClass}[1]{\def \pfSpellClass {#1}}
+\newcommand{\setSpellLevel}[1]{\def \pfSpellLvl {#1}}
+\newcommand{\setSpellTarget}[1]{\def \pfSpellTarget {#1}}
+\newcommand{\setSpellCastingTime}[1]{\def \pfSpellTime {#1}}
+\newcommand{\setSpellDuration}[1]{\def \pfSpellDuration {#1}}
+\newcommand{\setSpellRange}[1]{\def \pfSpellRange {#1}}
+\newcommand{\setSpellArea}[1]{\def \pfSpellArea{#1}}
+\newcommand{\setSpellDescription}[1]{\def \pfSpellDescr {#1}}
+\newcommand{\spellHasVerbalComp}{\toggletrue{pfSpellCompVerbal}}
+\newcommand{\spellNotHasVerbalComp}{\togglefalse{pfSpellCompVerbal}}
+\newcommand{\spellHasSomaticComp}{\toggletrue{pfSpellCompSomatic}}
+\newcommand{\spellNotHasSomaticComp}{\togglefalse{pfSpellCompSomatic}}
+\newcommand{\spellHasMaterialComp}{\toggletrue{pfSpellCompMaterial}}
+\newcommand{\spellNotHasMaterialComp}{\togglefalse{pfSpellCompMaterial}}
+\newcommand{\spellHasFocusComp}{\toggletrue{pfSpellCompFocus}}
+\newcommand{\spellNotHasFocusComp}{\togglefalse{pfSpellCompFocus}}
+\newcommand{\spellHasDivineFocusComp}{\toggletrue{pfSpellCompDivine}}
+\newcommand{\spellNotHasDivineFocusComp}{\togglefalse{pfSpellCompDivine}}
+
+% Draw spell card command
+\newcommand{\drawSpellCard}{
+	\resizebox{180pt}{250pt}{
+	\begin{tikzpicture}[x=1pt,y=1pt]
+	
+	\draw[rounded corners=2pt,black] (0,0) rectangle (180,250);
+	
+	\draw[draw=none,fill=gray] (0,248) rectangle (180,228);
+	\node[white,minimum height=16pt,anchor=west](name) at (0.5, 240){\bfseries \pfSpellName};
+	
+	\node[banner, minimum width=32pt, width=32pt, text width=20pt](lvlbanner) at (136,250) {\pfSpellClass\nodepart{content} \pfSpellLvl};
+	
+	\iftoggle{pfSpellCompVerbal}{\node[component, component type=verbal,below=1pt of lvlbanner.south] (verbal) {VERBAL};}{}
+	\iftoggle{pfSpellCompSomatic}{\node[component, component type=somatic,below=22pt of lvlbanner.south] (somatic) {SOMATIC};}{}
+	\iftoggle{pfSpellCompMaterial}{\node[component, component type=material,below=45pt of lvlbanner.south] (material) {MATERIAL};}{}
+	\iftoggle{pfSpellCompFocus}{\node[component, component type=focus,below=67pt of lvlbanner.south] (material) {FOCUS};}{}
+	\iftoggle{pfSpellCompDivine}{\node[component, component type=divine,below=89pt of lvlbanner.south] (material) {DIVINE FOCUS};}{}
+	
+	
+	\node[symbol,shape=symbol, symbol type=target] (targetSym) at (14,220) {\pfSpellTarget};
+	\node[symbol,shape=symbol, symbol type=time] (timeSym) at (14,204) {\pfSpellTime};
+	\node[symbol,shape=symbol, symbol type=duration] (durSym) at (14,188) {\pfSpellDuration};
+	
+	\node[uline, text width=116pt] (range) at (4,174) {RANGE\nodepart{content}\pfSpellRange};
+	\node[uline, text width=116pt,below = 5pt of range.south west, anchor=north west] (area) {AREA\nodepart{content}\pfSpellArea};
+	\node[uline, text width=162pt] (desc) at (4, 103) {\nodepart{content}\pfSpellDescr};
+	\end{tikzpicture}
+	}
+	\pfspellSetDefaultVariables
+}
+
+
+
+% ********************
+% MACRO
+% ********************
+% SpellName
+% Class
+% Level
+% 
+\newcommand{\spellcard}[9]{%
+	\resizebox{180pt}{250pt}{%
+		\begin{tikzpicture}[x=1pt,y=1pt]
+		
+		\draw[rounded corners=2pt,black] (0,0) rectangle (180,250);
+		
+		\draw[draw=none,fill=gray] (0,248) rectangle (180,228);
+		\node[white,minimum height=16pt,anchor=west](name) at (0.5, 240){\bfseries #1};
+		
+		\node[banner, minimum width=32pt, width=30pt](lvlbanner) at (136,250) {\StrBefore{#2}{ }\nodepart{content}\StrBehind{#2}{ }};
+		
+		
+		\IfSubStr{#3}{verbal}{\node[component, component type=verbal,below=1pt of lvlbanner.south] (verbal) {VERBAL};}{}
+		\IfSubStr{#3}{somatic}{\node[component, component type=somatic,below=22pt of lvlbanner.south] (somatic) {SOMATIC};}{}
+		\IfSubStr{#3}{material}{\node[component, component type=material,below=45pt of lvlbanner.south] (material) {MATERIAL};}{}
+		\IfSubStr{#3}{focus}{\node[component, component type=focus,below=67pt of lvlbanner.south] (material) {FOCUS};}{}
+		\IfSubStr{#3}{divine}{\node[component, component type=divine,below=89pt of lvlbanner.south] (material) {DIVINE FOCUS};}{}
+		
+		\node[symbol,shape=symbol, symbol type=target] (targetSym) at (14,220) {#4};
+		\node[symbol,shape=symbol, symbol type=time] (timeSym) at (14,204) {#5};
+		\node[symbol,shape=symbol, symbol type=duration] (durSym) at (14,188) {#6};
+		
+		\node[uline, text width=116pt] (range) at (4,174) {RANGE\nodepart{content}#7};
+		\node[uline, text width=116pt,below = 5pt of range.south west, anchor=north west] (area) {AREA\nodepart{content}#8};
+		\node[uline, text width=162pt] (desc) at (4, 103) {\nodepart{content}#9};
+		\end{tikzpicture}
+	}
+}
+
+% ********************
+% NEW MACRO
+% ********************
+\newcommand{\spcardold}[9]{%
+	\def\tempa{#1}%
+	\def\tempb{#2}%
+	\def\tempc{#3}%
+	\def\tempd{#4}%
+	\def\tempe{#5}%
+	\def\tempf{#6}%
+	\def\tempg{#7}%
+	\def\temph{#8}%
+	\def\tempi{#9}%
+	\spcardoldcontinued%
+}
+\newcommand{\spcardoldcontinued}[1]{
+	\resizebox{180pt}{250pt}{
+		\begin{tikzpicture}[x=1pt,y=1pt]
+		
+		\draw[rounded corners=2pt,black] (0,0) rectangle (180,250);
+		
+		\draw[draw=none,fill=gray] (0,248) rectangle (180,228);
+		\node[white,minimum height=16pt,anchor=west](name) at (0.5, 240){\bfseries \tempa};
+		
+		\node[banner, minimum width=32pt, width=30pt](lvlbanner) at (136,250) {\StrBefore{\tempb}{ }\nodepart{content}\StrBehind{\tempb}{ }};
+		
+		
+		\IfSubStr{\tempc}{verbal}{\node[component, component type=verbal,below=1pt of lvlbanner.south] (verbal) {VERBAL};}{}
+		\IfSubStr{\tempc}{somatic}{\node[component, component type=somatic,below=22pt of lvlbanner.south] (somatic) {SOMATIC};}{}
+		\IfSubStr{\tempc}{material}{\node[component, component type=material,below=45pt of lvlbanner.south] (material) {MATERIAL};}{}
+		\IfSubStr{\tempc}{focus}{\node[component, component type=focus,below=67pt of lvlbanner.south] (material) {FOCUS};}{}
+		\IfSubStr{\tempc}{divine}{\node[component, component type=divine,below=89pt of lvlbanner.south] (material) {DIVINE FOCUS};}{}
+		
+		\node[symbol,shape=symbol, symbol type=target] (targetSym) at (14,220) {\tempd};
+		\node[symbol,shape=symbol, symbol type=time] (timeSym) at (14,204) {\tempe};
+		\node[symbol,shape=symbol, symbol type=duration] (durSym) at (14,188) {\tempf};
+		
+		\node[uline, text width=116pt] (range) at (4,174) {RANGE\nodepart{content}\tempg};
+		\node[uline, text width=116pt,below = 5pt of range.south west, anchor=north west] (area) {AREA\nodepart{content}\temph};
+		\node[uline, text width=162pt] (desc) at (4, 103) {\nodepart{content}\tempi};
+		
+		\node[gray, anchor=south west, text width=162pt] (source) at (4, 0) {\begin{flushright}\tiny\em #1\end{flushright}};
+		\end{tikzpicture}%
+	}%
+}
+
+% ********************
+% SPELL AREA
+% ********************
+	\newcommand\drawspellarea[2]{
+		\begin{tikzpicture}
+		\node[area, area range=#1, area type=#2] (areaburst) at (0,0) {};
+		\end{tikzpicture}
+	}
+	
+	
+% ********************
+% NEW NEW MACRO - using latex3
+% ********************
+
+%% Latex3 Commands
+\ExplSyntaxOn
+% Verbal
+\cs_new:Npn \isverbal:nn #1#2 {
+	\regex_extract_once:nnNT {verbal} { #1 } \l_verbal_seq
+	{ #2 }
+}
+\cs_new:Npn \drawverbal #1 {
+	\exp_args:Noo \isverbal:nn {#1} {\node[component, component~type=verbal,below=1pt~of~lvlbanner.south] (verbal) {VERBAL};}
+}
+
+% Somatic
+\cs_new:Npn \issomatic:nn #1#2 {
+	\regex_extract_once:nnNT {somatic} { #1 } \l_somatic_seq
+	{ #2 }
+}
+\cs_new:Npn \drawsomatic #1 {
+	\exp_args:Noo \issomatic:nn {#1} {\node[component, component~type=somatic,below=22pt~of~lvlbanner.south] (somatic) {SOMATIC};}
+}
+
+% Material
+\cs_new:Nn \getmaterialcomps:n {
+	\regex_extract_once:nnN { material\s*\(([^\)]*)\) } { #1 } \l_material_seq
+	\seq_item:Nn \l_material_seq { 2 }
+}
+\cs_new:Npn \ismaterial:nn #1#2 {
+	\regex_extract_once:nnNT {material} { #1 } \l_material_seq
+	{ #2 }
+}
+\cs_new:Npn \drawmaterial #1 {
+	\exp_args:Noo \ismaterial:nn {#1} {\node[component, component~type=material,below=45pt~of~lvlbanner.south] (material) {MATERIAL};
+		\node[rline, anchor=east, above~left=5pt~and~1pt~of~material.west, text~width=20pt,] (materialComp) {\nodepart{content}\exp_args:No \getmaterialcomps:n {#1}};
+		\draw[dotted] (material.symbol~west) -- (materialComp.east);}
+}
+
+% Focus
+\cs_new:Nn \getfocuscomps:n {
+	\regex_extract_once:nnN { focus\s*\(([^\)]*)\) } { #1 } \l_focus_seq
+	\seq_item:Nn \l_focus_seq { 2 }
+}
+\cs_new:Npn \isfocus:nn #1#2 {
+	\regex_extract_once:nnNT {focus} { #1 } \l_focus_seq
+	{ #2 }
+}
+\cs_new:Npn \drawfocus #1 {
+	\exp_args:Noo \isfocus:nn {#1} {\node[component, component~type=focus,below=67pt~of~lvlbanner.south] (focus) {FOCUS};
+		\node[rline, anchor=east, above~left=5pt~and~1pt~of~focus.west, text~width=20pt,] (focusComp) {\nodepart{content}\exp_args:No \getfocuscomps:n {#1}};
+		\draw[dotted] (focus.symbol~west) -- (focusComp.east);}
+}
+
+% Divine
+\cs_new:Npn \isdivine:nn #1#2 {
+	\regex_extract_once:nnNT {divine} { #1 } \l_divine_seq
+	{ #2 }
+}
+\cs_new:Npn \drawdivine #1 {
+	\exp_args:Noo \isdivine:nn {#1} {\node[component, component~type=divine,below=89pt~of~lvlbanner.south] (divine) {DIVINE FOCUS};}
+}
+
+% Range
+\cs_new:Npn \drawrange #1 {
+	\regex_extract_once:nnNTF {.+} { #1 } \l_range_seq
+	{
+		\node[labeled] (range~details) ~at~ (4,174) {\nodepart{label}Range \nodepart{content} #1};
+	} { 
+		\node[labeled] (range~details) ~at~ (4,174) {};
+	}
+}
+%\node[labeled] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} \temprange};
+
+% Save
+\cs_new:Npn \drawsave #1 {
+	\regex_extract_once:nnNTF {.+} { #1 } \l_save_seq
+	{
+		\node[labeled] (save~details) [below=1pt~of~area.south~west, anchor=label~north~east] {\nodepart{label}Save \nodepart{content} #1};
+	} { 
+		\node[labeled] (save~details) [below=1pt~of~area.south~west, anchor=label~north~east] {};
+	}
+}
+
+% SR
+\cs_new:Npn \drawsr #1 {
+	\regex_extract_once:nnNTF {.+} { #1 } \l_sr_seq
+	{
+		\node[labeled] (sr~details) [below=1pt~of~save~details.label~south~east, anchor=label~north~east] {\nodepart{label}SR \nodepart{content} #1};
+	} { 
+		\node[labeled] (sr~details) [below=1pt~of~save~details.label~south~east, anchor=label~north~east] {};
+	}
+}
+
+% Area
+\cs_new:Npn \drawarea #1#2 {
+	\regex_extract_once:nnNTF { (?:[1-9][0-9]*)\s*(?:burst|cone|line) } { #2~#1 } \l_area_seq
+	{
+		\node[labeled] (area~details) [below=1pt~of~range~details.label~south~east, anchor=label~north~east] {\nodepart{label}Area \nodepart{content} #2 ft.~#1};
+		\node[area, area~type=#1, area~range=#2, anchor=north~west] (area) [below=1pt~of~area~details.label~south~east, anchor=north~west] {};
+	} { 
+		\node[labeled] (area~details) [below=1pt~of~range~details.label~south~east, anchor=label~north~east] {\nodepart{label}Area \nodepart{content} ---};
+		\node[text~height=0pt, text~depth=0pt, outer~ysep=0pt, inner~ysep=0pt] (area) [below=-1pt~of~area~details.label~south~east, anchor=north~west] {};
+	}
+}
+
+\ExplSyntaxOff
+
+
+
+%\newcommand\drawareashape[2]{
+%		\show#1
+%		\show#2
+%		\node[area, area type=#1, area range=#2, anchor=north west] (area) [below=1pt of area details.label south east, anchor=north west] {};
+%	}
+
+% [name] [source] [school] [class level] [components] [target] [casting time] [duration] [range] [area shape] [area range] [save] [sr] [description]
+\newcommand{\spcard}[9]{%
+	\def\tempname{#1}%
+	\def\tempsource{#2}%
+	\def\tempschool{#3}%
+	\def\tempclslvl{#4}%
+	\def\tempcomp{#5}%
+	\def\temptarg{#6}%
+	\def\tempct{#7}%
+	\def\tempdur{#8}%
+	\def\temprange{#9}%
+	\spcardcontinuedR%
+	%\spcardcontinued%
+}
+\newcommand{\spcardcontinued}[5]{
+	\resizebox{180pt}{250pt}{
+	%\resizebox{2.5in}{3in}{ % Need pixels relative to inches; 1px = 1/72.27in
+		\begin{tikzpicture}[x=1pt,y=1pt]
+		%\begin{tikzpicture}[x=\tikzx,y=\tikzy]
+		
+		% Border
+		\draw[rounded corners=2pt,black] (0,0) rectangle (180,250);
+		
+		% Main banner
+		\draw[draw=none,fill=gray] (0,248) rectangle (180,228);
+		\node[white,minimum height=16pt,anchor=west](name) at (0.5, 240){\bfseries \tempname};
+		\node[white,minimum height=5pt,anchor=west](school) at (1.5, 233) {\extratiny\tempschool};
+		
+		% Class/Lvl
+		\node[banner, minimum width=32pt, width=30pt](lvlbanner) at (136,250) {\StrBefore{\tempclslvl}{ }\nodepart{content}\StrBehind{\tempclslvl}{ }};
+		
+		% Components
+		\drawverbal{\tempcomp}
+		\drawsomatic{\tempcomp}
+		\drawmaterial{\tempcomp}
+		\drawfocus{\tempcomp}
+		\drawdivine{\tempcomp}
+		
+		% Target/Casting Time/Duration
+		\node[symbol,shape=symbol, symbol type=target] (targetSym) at (14,220) {\temptarg};
+		\node[symbol,shape=symbol, symbol type=time] (timeSym) at (14,204) {\tempct};
+		\node[symbol,shape=symbol, symbol type=duration] (durSym) at (14,188) {\tempdur};
+		
+		% Range/Area/Save/SR
+		%\node[labeled] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} \temprange};
+		\ifx\temprange\empty
+		\node[labeled] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} ---};
+		\else
+		\node[labeled] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} \temprange};
+		\fi
+		%\drawrange{\temprange}
+		
+		\drawarea{#1}{#2}
+		
+		%\def\tempsave{#3}
+		%\ifx\tempsave\empty
+		%\node[labeled] (save details) [below=1pt of area.south west, anchor=label north east] {\nodepart{label}Save \nodepart{content} ---};
+		%\else
+		\node[labeled] (save details) [below=1pt of area.south west, anchor=label north east] {\nodepart{label}Save \nodepart{content} #3};
+		%\fi
+		%\drawsave{#3}
+		
+		%\def\tempsr{#3}
+		%\ifx\tempsr\empty
+		%\node[labeled] (sr details) [below=1pt of save details.label south east, anchor=label north east] {\nodepart{label}SR \nodepart{content} ---};
+		%\else
+		\node[labeled] (sr details) [below=1pt of save details.label south east, anchor=label north east] {\nodepart{label}SR \nodepart{content} #4};
+		%\fi
+		%\drawsr{#4}
+		
+		% Description
+		\node[uline, text width=162pt] (desc) at (4, 103) {\nodepart{content}\extratiny #5\par};
+		
+		% Source
+		\node[gray, anchor=south west, text width=162pt] (source) at (4, 0) {\begin{flushright}\tiny\em\tempsource\end{flushright}};
+
+		\end{tikzpicture}%
+	}%
+}
+

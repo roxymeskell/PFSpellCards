@@ -1,0 +1,280 @@
+%\documentclass[landscapebusinesscard, nogray]{pfspellsheet}
+% \documentclass[namebadgeinsert, nogray]{pfspellsheet}
+\documentclass[namebadgeinsert]{pfspellsheet}
+% ***************
+% CLASS OPTIONS:
+% ***************
+% Colors:
+%   nogray
+% Layout:
+%  landscapebusinesscard
+%  namebadgeinsert
+
+% ****************************************************
+% SPELL CARD COMMANDS
+% ****************************************************
+
+% Create a spell card.
+% \spcard
+%   Params:
+%     name String
+%     source String
+%     school String
+%     classLvl [Class] [Lvl]
+%     components verbal|somatic|material|focus|divine
+%     target String
+%     castingTime String
+%     duration String
+%     range String
+%     rangeShape line|cone|burst
+%     rangeSize Number
+%     save String
+%     spellResitance String
+%     description String
+
+% Create a spell card frame with an internal TiKz picture that text can be positioned in.
+% \spcardframe
+%   Params:
+%     title String
+%     subtitle String
+%     footer String
+%     content TiKz nodes
+
+% Skip a card on the page. Useful when printing front and back.
+% \skipcard
+
+
+\begin{document}
+    \spcard{Name}{Source}{School}{Class 0}{verbal somatic material focus divine}{target}{casting time}{duration}{range}{burst}{10}{save}{SR}{description}%
+    \skipcard%
+    \spcard{Name}{Source}{School}{Class 0}{verbal somatic material focus divine}{target}{casting time}{duration}{range}{line}{10}{save}{SR}{description}%
+    %\drawbcard%
+    \spcard{Name}{Source}{School}{Class 0}{verbal somatic material focus divine}{target}{casting time}{duration}{range}{cone}{10}{save}{SR}{description}%
+    % Use a card frame for additional content
+    \spcardframe{Title}{Subtitle}{Footer Content}{%
+        \node[ulineR, text width=60\tikzx] (desc) at (4, 220) {\extratinyR Spells per Day\nodepart{content}\extratinyR%
+    	\begin{tabular}{cccc}%
+    	     0\textsuperscript{th}&1\textsuperscript{st}&2\textsuperscript{th}&3\textsuperscript{rd}\\%
+    	     5&3+1&3+1&2+1\\%
+    	\end{tabular}%
+	 \par};%
+    }%
+    %\spcardframe{Title}{Subtitle}{Source}{Content}%
+	%\spcard{name}{source}{school}{class 1}{verbal material (rabbit fur) focus (wand)}{target}{cast time}{duration}{range}{cone}{15}{save}{sr}{description}
+	%\spcard{NAME}{SOURCE}{SCHOOL}{CLASS LVL}{verbal somatic material (MATERIAL)}{TARGET}{CASTING TIME}{DURATION}{RANGE}{burst}{10}{SAVE}{SR}{DESCRIPTION}%
+	%
+	%\spcard{NAME}{SOURCE}{SCHOOL}{CLASS LVL}{verbal somatic material (MATERIAL)}{TARGET}{CASTING TIME}{DURATION}{RANGE}{burst}{10}{SAVE}{SR}{DESCRIPTION}%
+	%\vspace*{-5pt}%
+	%
+	%
+	%
+	%THE INSANITY SCORE
+    % Regardless of whether they select the Madness domain, all clerics of Tharizdun and the Elder Elemental Eye share one
+    % common aspect: They are insane. To reach beyond the veil and draw upon the power of Tharizdun is to touch madness itself, and no one can do so and come back unchanged.
+    % As a special rule, every cleric of Tharizdun or the Elder Elemental Eye gains an Insanity score equal to half his cleric level (count any doomdreamer levels as cleric levels for the purpose of calculating this score). For spellcasting (determining bonus spells and DCs), add this score to the cleric's Wisdom score and use the result in place of Wisdom alone.
+    % For all other purposes, such as skill checks and saving throws, subtract this score from the cleric’s Wisdom score and use the result in place of Wisdom alone.
+    % This means that the spells of the servants of the Dark God are very difficult to resist, but those servants are in general unaware of their surroundings and act imprudently—often erratically.
+	%
+	%
+	\spcardframe{Quick Reference}{}{}{% %width=162\tikx
+	\node[ulineR, text width=60\tikzx] (desc) at (4, 220) {\extratinyR Spells per Day\nodepart{content}\extratinyR%
+    	\begin{tabular}{cccc}%
+    	     0\textsuperscript{th}&1\textsuperscript{st}&2\textsuperscript{th}&3\textsuperscript{rd}\\%
+    	     5&3+1&3+1&2+1\\%
+    	\end{tabular}%
+	 \par};%
+	 \node[ulineR, text width=94\tikzx] (desc) at (72, 220) {\extratinyR Chaotic, Evil, Good, and Lawful Spells\nodepart{content}\extratinyR%
+    	A cleric can't cast spells of an alignment opposed to his own or his deity's. Spells associated with particular alignments are indicated by the chaos, evil, good, and law descriptors in their spell descriptions.
+	 \par};%
+	 \node[ulineR, text width=162\tikzx] (desc) at (4, 180) {\extratinyR Domain Granted Powers\nodepart{content}\extratinyR%
+	 \bgroup\def\arraystretch{1.5}%
+    	\begin{tabular}{r p{130\tikzx}}%
+    	    %\textbf{Name} & \textbf{Granted Power} \\%
+    	    Force & By manipulating cosmic forces of destruction, once per day the cleric can reroll any damage roll (for a weapon, a spell, or an ability) and take the better of the two rolls.\\%
+    	    Destruction & You gain the smite power, the supernatural ability to make a single melee attack with a +4 bonus on attack rolls and a bonus on damage rolls equal to your cleric level (if you hit). You must declare the smite before making the attack. This ability is usable once per day.\\%
+    	\end{tabular}%
+    	\egroup%
+	 \par};%
+	 \node[ulineR, text width=162\tikzx] (desc) at (4, 130) {\extratinyR Insanity\nodepart{content}\extratinyR%
+	    %Score: 2\\%
+	    Every cleric of Tharizdun gains an Insanity score equal to half his cleric level. For spellcasting (determining bonus spells and DCs), add this score to the cleric's Wisdom score and use the result in place of Wisdom alone. For all other purposes, such as skill checks and saving throws, subtract this score from the cleric's Wisdom score and use the result in place of Wisdom alone. \textit{This means that the spells of the servants of the Dark God are very difficult to resist, but those servants are in general unaware of their surroundings and act imprudently---often erratically.}%
+	 };%
+	 \node[ulineR, text width=77\tikzx] (desc) at (4, 77) {\extratinyR Spontaneous Casting \nodepart{content}\extratinyR%
+	   An evil cleric can channel stored spell energy into inflict spells that the cleric did not prepare ahead of time. The cleric can "lose" any prepared spell that is not a domain spell in order to cast any inflict spell of the same spell level or lower (a cure spell is any spell with "inflict" in its name).%
+	 };%
+	 \node[ulineR, text width=77\tikzx] (desc) at (89, 76) {\extratinyR Rebuke Undead (Su) \nodepart{content}\extratinyR%
+	   An evil cleric can rebuke or command undead creatures. A cleric may attempt to rebuke undead a number of times per day equal to 3 + his Charisma modifier. A cleric with 5 or more ranks in Knowledge (religion) gets a +2 bonus on turning checks against undead.%
+	 };%
+	}%
+	%
+	\spcardframe{Feat Quick Reference}{}{}{% %width=162\tikx
+	\node[ulineR, text width=162\tikzx] (desc) at (4, 220) {\extratinyR Mastery of Chaos and Order%
+	\nodepart{content}\extratinyR%
+    	When you cast a spell, you can choose to apply one or both of the following effects to the spell. The decision to add the effect(s) must be made during casting. By channeling the churning chaos of Kythri, you can add ld6-3 to the spell's save DC. Unlike with damage rolls, the minimum result is not 1; for example, if you roll a 2 on the 1d6, the DC is reduced by 1. This choice is made at the time of casting, and has no effecton a spell that does not allow a save. The adjusted save DC is the same for all creatures that must save against the spell (you don't roll separately for each affected creature). By focusing the perfect order of Daanvi, you can choose to set the result of any spell's variable, numeric effect as one-half the maximum possible result. For example, a 9th-level wizard who casts fireball normally deals 9d6 points of damage; choosing to use this ability means the fireball deals 27 points of damage (half of 54, which is the maximum result of 9d6). The spell can still be affected by Empower Spell and other such feats and effects that require it to have a variable, numeric effect (using the previous example, empowering the fireball would cause it to deal 150\% of 27 points of damage, or 40 points of damage, as if the result of the variable, numeric effect were 27).%
+	 \par};%
+	 \node[ulineR, text width=162\tikzx] (desc) at (4, 120) {\extratinyR Mastery of Day and Night%
+	\nodepart{content}\extratinyR%
+    	You can spontaneously apply the effect of the Maximize Spell metamagic feat to any cure or inflict spell you cast. Doing this has no effect on the spell's level or casting time.%
+	 \par};%
+	 \node[ulineR, text width=162\tikzx] (desc) at (4, 90) {\extratinyR Maximize Spell%
+	\nodepart{content}\extratinyR%
+    	All variable, numeric effects of a spell modified by this feat are maximized. Saving throws and opposed rolls are not affected, nor are spells without random variables. A maximized spell uses up a spell slot three levels higher than the spell's actual level.\\An empowered, maximized spell gains the separate benefits of each feat: the maximum result plus one-half the normally rolled result.%
+	 \par};%
+	}%
+	%
+    \spcard{Summon Monster Quick Reference}{PHB}{Conjuration (Summoning)}{Clr 1-3}{verbal somatic divine}{}{1 round}{1 round/level (D)}{Close (25 ft. + 5 ft./2 levels}{}{}{none}{no}{Summon extraplanar creature(s). It appears where you designate and acts immediately, on your turn. It attacks your opponents to the best of its ability. If you can communicate with the creature, you can direct it not to attack, to attack particular enemies, or to perform other actions. A summoned monster cannot summon or otherwise conjure another creature, nor can it use any teleportation or planar travel abilities. Creatures cannot be summoned into an environment that cannot support them. No two summoned creatures can be more than 30 ft. apart.\\When you use a summoning spell to summon an air, chaotic, earth, evil, fire, good, lawful, or water creature, it is a spell of that type.\\\textbf{I:} Conjures one of the creatures from the 1st-level list on the Summon Monster table. You choose which kind of creature to summon, and you can change that choice each time you cast the spell.\\\textbf{II:} Like summon monster I, except that you can summon one creature from the 2nd-level list or 1d3 creatures of the same kind from the 1st-level list.\\\textbf{III:} Like summon monster I, except that you can summon one creature from the 3rd-level list, 1d3 creatures of the same kind from the 2nd-level list, or 1d4+1 creatures of the same kind from the 1st-level list.}%%\fontsizer{3} 
+	%
+	\spcardframe{Summon Monster Quick Reference}{}{}{% %width=162\tikx
+    \node[ulineR, text width=162\tikzx] (desc) at (4, 220) {\extratinyR Summon Lists %
+	\nodepart{content}\extratinyR%
+    \begin{multicols}{3}%
+        \begin{tabular}{|p{30\tikzx}|c|}%
+            \multicolumn{2}{|c|}{\textbf{Level 1}}\\
+            Celestial dog & LG\\
+            Celestial owl & LG\\
+            Celestial giant fire beetle & NG\\
+            Celestial porpoise\textsuperscript{1} &	NG\\
+            Celestial badger & CG\\
+            Celestial monkey & CG\\
+            Fiendish dire rat & LE\\
+            Fiendish raven & LE\\
+            Fiendish monstrous centipede, Medium & NE\\
+            Fiendish monstrous scorpion, Small & NE\\
+            Fiendish hawk & CE\\
+            Fiendish monstrous spider, Small & CE\\
+            Fiendish octopus\textsuperscript{1} & CE\\
+            Fiendish snake, Small viper & CE
+        \end{tabular}\vfill%
+        \begin{tabular}{|p{30\tikzx}|c|}%
+            \multicolumn{2}{|c|}{\textbf{Level 2}}\\
+            Celestial giant bee & LG\\
+            Celestial giant bombardier beetle & NG\\
+            Celestial riding dog & NG\\
+            Celestial eagle & CG\\
+            Lemure (devil) & LE\\
+            Fiendish squid\textsuperscript{1} & LE\\
+            Fiendish wolf & LE\\
+            Fiendish monstrous centipede, Large & NE\\
+            Fiendish monstrous scorpion, Medium & NE\\
+            Fiendish shark, Medium\textsuperscript{1} & NE\\
+            Fiendish monstrous spider, Medium & CE\\
+            Fiendish snake, Medium viper & CE
+        \end{tabular}\vfill%
+        \begin{tabular}{|p{30\tikzx}|c|}%
+            \multicolumn{2}{|c|}{\textbf{Level 3}}\\
+            Celestial black bear & LG\\
+            Celestial bison & NG\\
+            Celestial dire badger & CG\\
+            Celestial hippogriff & CG\\
+            Elemental, Small (any) & N\\
+            Fiendish ape & LE\\
+            Fiendish dire weasel & LE\\
+            Hell hound & LE\\
+            Fiendish snake, constrictor & LE\\
+            Fiendish boar & NE\\
+            Fiendish dire bat & NE\\
+            Fiendish monstrous centipede, Huge & NE\\
+            Fiendish crocodile & CE\\
+            Dretch (demon) & CE\\
+            Fiendish snake, Large viper & CE\\
+            Fiendish wolverine & CE
+        \end{tabular}%
+    \end{multicols}%
+    \textsuperscript{1}May be summoned only into an aquatic or watery environment.%
+	\par};%
+    }%
+    %
+    %
+	%
+	%\spcard{Inflict Minor Wounds}{PHB}{Necromancy}{Clr 0}{verbal somatic}{creature touched}{1 standard action}{instantaneous}{touch}{}{}{will negates}{yes}{This spell functions like inflict light wounds, except that you deal 1 point of damage and a Will save negates the damage instead of halving it.}%
+    %
+    \spcard{Inflict Wounds Quick Reference}{PHB}{Necromancy}{See Text}{verbal somatic}{creature touched}{1 standard action}{instantaneous}{close (25 ft. + 5 ft./2 levels)}{}{}{will half}{yes}{When laying your hand upon a creature, you channel damage dealing negative energy. Since undead are powered by negative energy, this spell cures such a creature of a like amount of damage, rather than harming it.\\\textbf{Minor (Clr 0):} Inflicts 1 point of damage.\\\textbf{Light (Clr/Dstr 1):} Inflicts 1d8 points of damage +1 point per caster level (maximum +5).\\\textbf{Moderate (Clr 2):} Inflicts 2d8 points of damage +1 point per caster level (maximum +10).\\\textbf{Serious (Clr 3):} Inflicts 3d8 points of damage +1 point per caster level (maximum +15).}
+	%\skipcard%
+	%\spcard{Inflict Light Wounds}{PHB}{Necromancy}{Dstr/Clr 1}{verbal somatic}{Creature touched}{1 standard action}{instantaneous}{close (25 ft. + 5 ft./2 levels)}{}{}{will half}{yes}{When laying your hand upon a creature, you channel negative energy that deals 1d8 points of damage +1 point per caster level (maximum +5).\\Since undead are powered by negative energy, this spell cures such a creature of a like amount of damage, rather than harming it.}%
+    %
+    %\skipcard%
+    %\spcard{Inflict Moderate Wounds}{PHB}{Necromancy}{Clr 2}{verbal somatic}{creature touched}{1 standard action}{instantaneous}{touch}{}{}{will negates}{yes}{This spell functions like inflict light wounds, except that you deal 2d8 points of damage +1 point per caster level (maximum +10).}%
+    %
+    %\skipcard%
+    %\spcard{Inflict Serious Wounds}{PHB}{Necromancy}{Clr 3}{verbal somatic}{creature touched}{1 standard action}{instantaneous}{touch}{}{}{will negates}{yes}{This spell functions like inflict light wounds, except that you deal 3d8 points of damage +1 point per caster level (maximum +15).}%
+    %
+    %
+	%
+	\skipcard\skipcard%
+	%
+	% Force 1
+	% \spcard{Mage Armor}{PHB}{Conjuration (Creation) [Force]}{Force 1}{verbal somatic focus (piece of cured leather)}{Creature touched}{1 standard action}{1 hour/level (D)}{touch}{}{}{will negates (harmless)}{no}{An invisible but tangible field of force surrounds the subject of a mage armor spell, providing a +4 armor bonus to AC. Unlike mundane armor, mage armor entails no armor check penalty, arcane spell failure chance, or speed reduction. Since mage armor is made of force, incorporeal creatures can't bpass it the way they do normal armor.}%
+	% %
+	% % Dstr 2
+	% \spcard{Shatter}{PHB}{Evocation [Sonic]}{Dstr/Clr 2}{verbal somatic divine}{5-ft.-radius spread; or one solid object or one crystalline creature}{1 standard action}{instantaneous}{close (25 ft. + 5 ft./2 levels)}{burst}{5}{will negates (object); will negates (object) or fortitude half; see text}{yes (object)}{Shatter creates a loud, ringing noise that breaks brittle, nonmagical objects; sunders a single solid, nonmagical object; or damages a crystalline creature.\\Used as an area attack, shatter destroys nonmagical objects of crystal, glass, ceramic, or porcelain. All such objects within a 5-foot radius of the point of origin are smashed into dozens of pieces by the spell. Objects weighing more than 1 pound per your level are not affected, but all other objects of the appropriate composition are shattered.\\Alternatively, you can target shatter against a single solid object, regardless of composition, weighing up to 10 pounds per caster level. Targeted against a crystalline creature (of any weight), shatter deals 1d6 points of sonic damage per caster level (maximum 10d6), with a Fortitude save for half damage.}%
+	% %
+	% % Force 2
+	% \spcard{Magic Missile}{PHB}{Evocation [Force]}{Force 2}{verbal somatic}{up to five creatures, no two of which can be more than 15 ft. apart}{1 standard action}{instantaneous}{medium (100 ft. + 10 ft./level)}{}{}{none}{yes}{A missile of magical energy darts forth from your fingertip and strikes its target, dealing 1d4+1 points of force damage.\\The missile strikes unerringly, even if the target is in melee combat or has less than total cover or total concealment. Specific parts of a creature can't be singled out. Inanimate objects are not damaged by the spell.\\For every two caster levels beyond 1st, you gain an additional missile—two at 3rd level, three at 5th, four at 7th, and the maximum of five missiles at 9th level or higher. If you shoot multiple missiles, you can have them strike a single creature or several creatures. A single missile can strike only one creature. You must designate targets before you check for spell resistance or roll damage.}%
+	% %
+	% % Dstr 3
+	% \spcard{Contagion}{PHB}{Necromancy [Evil]}{Dstr 3}{verbal somatic}{living creature touched}{1 standard action}{instantaneous}{touch}{}{}{fortitude negates}{yes}{%
+	% 	The subject contracts a disease selected from the table, which strikes immediately (no incubation period). The DC noted is for the subsequent saves (use contagion's normal save DC for the initial saving throw).\\
+	% 	\begin{tabular}{|c|c|c|}
+	% 		\textbf{Disease} & \textbf{DC} & \textbf{Damage} \\
+	% 		Blinding sickness & 16 & 1d4 Str*\\
+	% 		Cackle fever & 16 & 1d6 Wis\\
+	% 		Filth fever & 12 & 1d3 Dex and 1d3 Con\\
+	% 		Mindfire & 12 & 1d4 Int\\
+	% 		Red ache & 15 & 1d6 Str\\
+	% 		Shakes & 13 & 1d8 Dex\\
+	% 		Slimy doom & 14 & 1d4 Con\\
+	% 		\multicolumn{3}{|p{35em}|}{*Each time a victim takes 2 or more points of Strength damage from blinding sickness, he or she must make another Fortitude save (using the disease's save DC) or be permanently blinded.}
+	% 	\end{tabular}
+	% }%
+	% %
+	% % Force 3
+	% \spcard{Blast of Force}{CD}{Evocation [Force]}{Force 3}{verbal somatic}{a single target}{1 standard action}{instantaneous}{medium (100 ft. + 10 ft./level)}{line}{100}{fortitude; see text}{yes}{You direct single, invisible blast of force at a chosen target. This is a ranged touch attack that inflicts 1d6 points of damage for every two levels, to a maximum of 5d6. In addition, a successful hit forces the target to make a Fortitude save or be knocked down (size and stability modifiers apply to the saving throw as if this were a bull rush).}%
+	% %
+	% %
+	% \spcard{Blade of Blood}{PHB2}{Necromancy}{Clr 1}{verbal somatic}{weapon touched}{swift action}{1 round/level (D)}{}{}{}{none}{no}{\textit{Red blood erupts along the weapon's blade, bludgeon, or point.}\\This spell infuses the weapon touched with baleful energy.\\The next time this weapon strikes a living creature, blade of blood discharges. The spell deals an extra 1d6 points of damage against the target of the attack.\\You can voluntarily take 5 hit points of damage to empower the weapon to deal an extra 2d6 points of damage (for a total of 3d6 points of extra damage).\\The weapon loses this property if its wielder drops it or otherwise loses contact with it.}%
+ %    %
+	% \spcard{Viger, Lesser}{Complete Divine}{Conjuration (Healing)}{Clr 1}{verbal somatic}{living creature touched}{1 standard action}{10 rounds + 1 round/level (max 15 rounds)}{touch}{}{}{will negates}{yes (harmless)}{With a touch of your hand, you boost the subject's life energy, granting him or her the fast healing  ability for the duration of the spell. The subject heals 1 hit point per round of such damage until the spell ends and is automatically stabilized if he or she begins dying from hit point loss during that time. Lessor vigor does not restore hit points lost from starvation, thirst, or suffocation, nor does it allow a creature to regrow or attach lost body parts.\\The effects of multiple vigor spells do not stack; only the highest-level effect applies.\\Applying a second vigor spell of equal level extends the first spell's duration by the full duration of the second spell.}%
+	% %
+	% %\spcard{Summon Monster I}{PHB}{Conjuration (Summoning)}{Clr 1}{verbal somatic divine}{}{1 round}{1 round/level (D)}{Close (25 ft. + 5 ft./2 levels}{}{}{none}{no}{This spell summons an extraplanar creature (typically an outsider, elemental, or magical beast native to another plane). It appears where you designate and acts immediately, on your turn. It attacks your opponents to the best of its ability. If you can communicate with the creature, you can direct it not to attack, to attack particular enemies, or to perform other actions.\\The spell conjures one of the creatures from the 1st-level list on the Summon Monster table. You choose which kind of creature to summon, and you can change that choice each time you cast the spell.\\A summoned monster cannot summon or otherwise conjure another creature, nor can it use any teleportation or planar travel abilities. Creatures cannot be summoned into an environment that cannot support them.\\When you use a summoning spell to summon an air, chaotic, earth, evil, fire, good, lawful, or water creature, it is a spell of that type.}%
+	% %
+	% \spcard{Curse of Ill Fortune}{Complete Divine}{Transmutation}{Celric 2}{verbal somatic divine}{one living creature}{1 standard action}{1 min./level}{medium (100 ft. +10/level}{}{}{will negates}{yes}{You place a temporary curse upon the subject, giving her a -3 penalty on attack rolls, saving throws, ability checks, and skill checks. Curse of ill fortune is negated by any spell that removes a bestow curse spell.}%
+	% %
+ %    \spcard{Dark Way}{Spell Compendium}{Illusion (Shadow)}{Clr 2}{verbal somatic divine}{}{1 standard action}{1 round/level}{close (25 ft. + 5 ft./2 levels}{}{}{none}{yes}{You create a ribbonlike, weightless unbreakable bridge of force 5 ft. wide, 1 in. thick, and up to 20 ft./level long. A dark way must be anchored at both ends to solid objects, but otherwise can be at any angle. Like a wall of force, it must be continuous and unbroken when formed. It is typically used to cross a chasm or a hazardous space. Creatures can move on a dark way without penalty, since it is no more slippery than a typical dungeon floor.\\A dark way can support a maximum of 200 pounds per caster level. Creatures that cause the total weight on a dark way to exceed this limit fall through it as if it weren't there. You never fall through a dark way unless your own weight exceeds the spell's maximum capacity.}%
+ %    %
+	% \spcard{Deific Vengeance}{Complete Divine}{Conjuration (Summoning)}{Clr 2}{verbal somatic divine}{one creature}{1 standard action}{instantaneous}{close (25 ft. + 5 ft./2 levels}{}{}{will half}{yes}{When you cast this spell, you call out to a deity, listing the crimes of your target and urging the deity to punish the miscreant. (The target's alignment is irrelevant to the success of the spell.) The divine power of the angry deity imposes this punishment in the form of a sharp, spiritual blow to the target. This attack hits automatically and deals 1d6 points of damage per two caster levels (maximum 5d6), or 1d6 points per caster level (maximum 10d6) if the target is undead. A successful Will saving throw reduces the damage by half.}%
+	% %
+	% \spcard{Hold Person}{PHB}{Enchantment (Compulsion) [Mind-Affecting]}{Clr 2}{verbal somatic divine}{one humaniod creature}{1 standard action}{1 round/level (D); see text}{medium (100 ft. + 10 ft./level)}{}{}{will negates; see text}{yes}{The subject becomes paralyzed and freezes in place. It is aware and breathes normally but cannot take any actions, even speech. Each round on its turn, the subject may attempt a new saving throw to end the effect. (This is a full-round action that does not provoke attacks of opportunity.)\\A winged creature who is paralyzed cannot flap its wings and falls. A swimmer can't swim and may drown.}%
+ %    %
+ %    %\spcard{Summon Monster II}{PHB}{Conjuration (Summoning)}{Clr 2}{verbal somatic divine}{}{1 round}{1 round/level (D)}{Close (25 ft. + 5 ft./2 levels}{}{}{none}{no}{This spell functions like summon monster I, except that you can summon one creature from the 2nd-level list or 1d3 creatures of the same kind from the 1st-level list. No two summoned creatures can be more than 30 ft. apart.}%
+ %    %
+	% %\spcard{Chain of Eyes}{Complete Divine}{Divination}{Clr 3}{verbal somatic}{living creature touched}{1 standard action}{1 hour/level}{touch}{}{}{will negates}{yes}{You can use a creature’s vision instead of your own. While this spell gives you no control over the creature, each time it comes into physical contact with another living being, you can choose to transfer your sensor to the new creature. In this way, your sensor can infiltrate a closely guarded area.\\During your turn in a round, you can use a free action to switch from seeing through the current creature’s eyes to seeing normally or back again.}%
+	% %
+ %    \spcard{Darkfire}{Spell Compendium}{Evocation [Fire]}{Clr 3}{verbal somatic}{}{1 standard action}{1 round/level (D)}{0 ft.}{}{}{none}{yes}{Dark flames appear in your hand. You can hurl them or use them to touch enemies. The flames appear in your open hand and harm neither you nor your equipment. They emit no light but produce the same amount of heat as an actual fire.\\Beginning the following round, you can strike opponents with a melee touch attack, dealing 1d6 points of damage per 2 caster levels (maximum 5d6. Alternatively, you can hurl the flames up to 120 feet as a thrown weapon. When doing so, you make a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand.\\The darkfire is invisible to normal vision but can be seen with darkvision as easily as normal flame can be seen in darkness (this means that darkfire can be used as a signal or beacon for creatures with darkvision).\\The spell does not function underwater.}%
+ %    %
+	% \spcard{Flame of Faith}{Complete Divine}{Evocation}{Clr 3}{verbal somatic material (lump of phosphorus)}{nonmagical weapon touched}{1 standard action}{1 round/level}{touch}{}{}{none}{no}{You can temporarily turn any single normal or masterwork melee weapon into a magical, flaming one. For the duration of the spell, the weapon acts as a +1 flaming burst weapon that deals an additional +1d6 points of fire damage.\\On a critical hit, the weapon deals +1d10 points of bonus fire damage if the weapon’s critical multiplier is $\times$2, +2d10 points if the weapon’s multiplier is $\times$3, and +3d10 points if the multiplier is $\times$4. This spell effect does not stack with a weapon’s enhancement bonus or with a flaming or flaming burst weapon bonus.}%
+	% %
+ %    \spcard{Ghost Touch Weapon}{Spell Compendium}{Transmutation}{Clr 3}{verbal somatic}{one weapon or fifty projectiles}{1 standard action}{1 min./level}{Close (25 ft. + 5 ft. / 2 levels)}{}{}{will negates (harmless, object)}{yes (harmless, object)}{Ghost touch weapon makes a weapon magically capable of dealing damage normally to incorporeal creatures, regardless of its enhancement bonus. (An incorporeal creature's 50\% chance to avoid damage does not apply to attacks made with weapons under the effect of this spell.) A ranged weapon affected by this spell does not bestow the ability on its ammunition.\\The weapon can be picked up and moved by an incorporeal creature at any time. A manifesting ghost can wield the weapon against corporeal foes. Essentially, a weapon under the effect of this spell counts as either corporeal or incorporeal at any given time, whichever is more beneficial to the wielder.}%
+	% %
+	% %\spcard{Spikes}{Complete Divine}{Transmutation}{Clr 3}{verbal somatic material (small thorn)}{wooden weapon touched}{1 standard action}{1 hour/level}{touch}{}{}{none}{no}{Small magical thorns or spikes protrude from the surface of a wooden weapon, such as a club, greatclub, nunchaku, or quarterstaff. For the duration of the spell, the weapon deals both piercing and bludgeoning damage. It gains a +2 enhancement bonus on its attacks, deals an additional +1 point of damage per caster level (maximum +10), and its threat range is doubled. This spell works only on melee weapons with wooden striking surfaces. For instance, it does not work on a bow, an arrow, or a metal mace.}%
+	% %
+ %    %\spcard{Summon Monster III}{PHB}{Conjuration (Summoning)}{Clr 3}{verbal somatic divine}{}{1 round}{1 round/level (D)}{Close (25 ft. + 5 ft./2 levels}{}{}{none}{no}{This spell functions like summon monster I, except that you can summon one creature from the 3rd-level list, 1d3 creatures of the same kind from the 2nd-level list, or 1d4+1 creatures of the same kind from the 1st-level list. No two summoned creatures can be more than 30 ft. apart.}%
+	% %
+	% \spcard{Vasage of the Deity, Lesser}{Complete Divine}{Transmutation [Evil, Good]}{Clr 3}{verbal somatic divine}{you}{1 standard action}{1 round/level}{personal}{}{}{none}{no}{When you cast this spell, your body changes into a form more like your deity’s (in a very limited fashion, of course). You gain a +4 enhancement bonus to your Charisma score. You also gain resistance 10 to two or three energy types: acid, cold, and electricity if you are good; cold and fire if you are evil.}
+	% %
+	% \spcard{Viger}{Complete Divine}{Conjuration (Healing)}{Clr 3}{verbal somatic}{living creature touched}{1 standard action}{10 rounds + 1 round/level (max 25 rounds)}{touch}{}{}{will negates}{yes (harmless)}{This spell is the same as lesser vigor, except that it grants fast healing at the rate of 2 hit points per round.}%
+	% %
+ %    \spcard{Water Walk}{PHB}{Transmutation [Water]}{Clr 3}{verbal somatic divine}{one touched creature/level}{1 standard action}{10 mins/level (D)}{touch}{}{}{will negate (harmless)}{yes (harmless)}{The transmuted creatures can tread on any liquid as if it were firm ground. Mud, oil, snow, quicksand, running water, ice, and even lava can be traversed easily, since the subjects' feet hover an inch or two above the surface. (Creatures crossing molten lava still take damage from the heat because they are near it.) The subjects can walk, run, charge, or otherwise move across the surface as if it were normal ground.\\If the spell is cast underwater (or while the subjects are partially or wholly submerged in whatever liquid they are in), the subjects are borne toward the surface at 60 feet per round until they can stand on it.}%
+    %
+	% read magic
+	% Purify Food & Drink
+	% Enchanced Diplomancy
+	% Create Water
+	%
+	% Cure Light Wounds
+	% Barbed Chains
+	% Doom
+	% (D) True Strike
+	%
+	% 
+	%
+\end{document}

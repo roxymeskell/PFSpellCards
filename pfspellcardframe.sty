@@ -1,0 +1,61 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{pfspellcardframe}[2024/08/30 Pathfinder Spell Card Frame Package]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+\RequirePackage{xstring}
+\RequirePackage{pfspellshapes}
+\RequirePackage{pfspellarea}
+\RequirePackage{pfspellcomp}
+\RequirePackage{expl3}
+\expandafter\def\csname ver@l3regex.sty\endcsname{}
+\RequirePackage{l3regex}
+\usetikzlibrary{positioning,calc}
+\usetikzlibrary{backgrounds}
+
+% ****************************************************
+% Fillable card frame that matches spell cards
+% ****************************************************
+\newcommand{\spcardframe}[4]{%
+\resizebox*{\pfspelltikzrelativestyles@cardwidth}{\pfspelltikzrelativestyles@cardheight}{%
+		\begin{tikzpicture}[x=\tikzx,y=\tikzy]%
+		%
+		% Main banner
+		\draw[draw=none,fill=mainbannercolor] (0,248) rectangle (180,228);%
+		\node[white,minimum height=16\tikzy,anchor=west,inner sep=0pt](name) at (0.5, 240){\bfseries\normalsizeR #1};%
+		\node[white,minimum height=5\tikzy,anchor=west](school) at (1.5, 233) {\extratinyR#2};%
+		#4%
+		%
+		% Source
+		\node[gray, anchor=south west, text width=162\tikzx] (source) at (4, 0) {\begin{flushright}\tinyR\em#3\end{flushright}};%
+		% Border
+		\draw[rounded corners=2pt,black] (0,0) rectangle (180,250);%
+		\end{tikzpicture}%
+	}%
+	\cardlinebreak%
+}
+
+% ****************************************************
+% Skip card command
+% ****************************************************
+\newcommand{\skipcard}{%
+\resizebox*{\pfspelltikzrelativestyles@cardwidth}{\pfspelltikzrelativestyles@cardheight}{%
+    \begin{tikzpicture}[x=\tikzx,y=\tikzy]%
+    \draw[rounded corners=2pt,white] (0,0) rectangle (180,250);%
+	\end{tikzpicture}%
+    }%
+	\cardlinebreak%
+}
+
+% ****************************************************
+% Draw a blank card
+% ****************************************************
+\newcommand{\drawbcard}{%
+	%\noindent\begin{tikzpicture}[x=3.5in-.8/72.27pt,y=2in-.8/72.27pt]%
+	\fbox{\noindent\begin{tikzpicture}[x=1in,y=1in]%
+	\draw[rounded corners=2pt,black] (0,0) rectangle (3.5,2);%
+	\draw[gray,step=0.25] (0,0) grid (3.5, 2);%
+	\draw [brown] (current bounding box.south west) rectangle (current bounding box.north east);%
+	\end{tikzpicture}%
+	}%
+}

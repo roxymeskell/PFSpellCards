@@ -1,0 +1,297 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{pfspellcomp}[2017/10/19 Pathfinder Spell Components Package]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+\RequirePackage{xstring}
+\usetikzlibrary{positioning,calc}
+
+% ********************
+% COMPONENT SHAPE
+% ********************
+\pgfkeys{/pgf/.cd,
+	component type/.store in=\pgfcomptype,
+	component type=material,
+	width/.store in=\pgfshapewidth,
+	height/.store in=\pgfshapeheight,
+}
+\tikzoption{component type}[]{\pgfkeys{/pgf/component type=#1}}
+\tikzoption{width}[]{\pgfkeys{/pgf/width=#1}}
+\tikzoption{height}[]{\pgfkeys{/pgf/height=#1}}
+\pgfdeclareshape{component symbol}{%
+	\saveddimen{\symsize}{
+		\let\holdxa\pgf@xa
+		\let\holdya\pgf@ya
+		%
+		\ifdefined\pgfshapewidth
+		\pgfmathsetlength{\pgf@xa}{\pgfshapewidth}
+		\else
+		\pgf@xa=\wd\pgfnodeparttextbox
+		\advance\pgf@xa by\pgfshapeinnerxsep
+		\advance\pgf@xa by\pgfshapeinnerxsep
+		\ifdim \pgf@xa<\pgfshapeminwidth
+		\pgf@xa=\pgfshapeminwidth
+		\fi
+		\fi
+		%
+		\ifdefined\pgfshapeheight
+		\pgfmathsetlength{\pgf@ya}{\pgfshapeheight}
+		\advance\pgf@ya by-\ht\pgfnodeparttextbox
+		\advance\pgf@ya by-\dp\pgfnodeparttextbox
+		\advance\pgf@ya by-\pgfshapeinnerysep
+		\advance\pgf@ya by-\pgfshapeinnerysep
+		\else
+		\pgf@ya=0pt
+		\fi
+		%
+		\ifdim \pgf@xa<\pgf@ya
+		\pgf@x=\pgf@xa
+		\else
+		\pgf@x=\pgf@ya
+		\fi
+		%
+		\let\pgf@xa\holdxa
+		\let\pgf@ya\holdya
+	}
+	\savedanchor\northeast{
+		\ifdefined\pgfshapewidth
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapewidth}
+		\pgf@x=.5\pgf@xa
+		\let\pgf@xa\holdxa
+		\else
+		\pgf@x=.5\wd\pgfnodeparttextbox
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\fi
+		\ifdefined\pgfshapeheight
+		\let\holdya\pgf@ya
+		\pgfmathsetlength{\pgf@ya}{\pgfshapeheight}
+		\pgf@y=.5\pgf@ya
+		\let\pgf@ya\holdya
+		\else
+		\pgf@y=.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox
+		\advance\pgf@y by\pgfshapeinnerysep
+		\fi
+	}
+	\savedanchor\southwest{
+		\ifdefined\pgfshapewidth
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapewidth}
+		\pgf@x=.5\pgf@xa
+		\let\pgf@xa\holdxa
+		\else
+		\pgf@x=.5\wd\pgfnodeparttextbox
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\fi
+		\pgf@x=-\pgf@x
+		\ifdefined\pgfshapeheight
+		\let\holdya\pgf@ya
+		\pgfmathsetlength{\pgf@ya}{\pgfshapeheight}
+		\pgf@y=.5\pgf@ya
+		\let\pgf@ya\holdya
+		\else
+		\pgf@y=.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox
+		\advance\pgf@y by\pgfshapeinnerysep
+		\fi
+		\pgf@y=-\pgf@y
+	}
+	\savedanchor\symcenter{
+		\pgf@x=0pt
+		\let\holdya\pgf@ya
+		\ifdefined\pgfshapeheight
+		\pgfmathsetlength{\pgf@ya}{\pgfshapeheight}
+		\pgf@y=.5\pgf@ya
+		\advance\pgf@ya by-\ht\pgfnodeparttextbox
+		\advance\pgf@ya by-\dp\pgfnodeparttextbox
+		\advance\pgf@ya by-\pgfshapeinnerysep
+		\advance\pgf@ya by-\pgfshapeinnerysep
+		\advance\pgf@y by-.5\pgf@ya
+		\else
+		\pgf@y=.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox
+		\advance\pgf@y by\pgfshapeinnerysep
+		\fi
+		\let\pgf@ya\holdya
+	}
+	\savedanchor\textanchor{
+		\pgf@x=.5\wd\pgfnodeparttextbox
+		\pgf@x=-\pgf@x
+		\ifdefined\pgfshapeheight
+		\let\holdya\pgf@ya
+		\pgfmathsetlength{\pgf@ya}{\pgfshapeheight}
+		\pgf@y=-.5\pgf@ya
+		\let\pgf@ya\holdya
+		%\advance\pgf@y by.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by\dp\pgfnodeparttextbox
+		\advance\pgf@y by\pgfshapeinnerysep
+		\else
+		\pgf@y=-.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox
+		\advance\pgf@y by\pgfshapeinnerysep
+		\fi
+	}
+	
+	\anchor{center}{\pgf@x=0pt \pgf@y=0pt}%
+	\anchor{text}{\textanchor}%
+	\anchor{symbol}{\symcenter}%
+	\anchor{symbol north}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@y by.5\pgf@xa
+	}
+	\anchor{symbol south}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@y by-.5\pgf@xa
+	}
+	\anchor{symbol east}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@x by.5\pgf@xa
+	}
+	\anchor{symbol west}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@x by-.5\pgf@xa
+	}
+	\anchor{symbol north east}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@x by.5\pgf@xa
+		\advance\pgf@y by.5\pgf@xa
+	}
+	\anchor{symbol north west}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@x by-.5\pgf@xa
+		\advance\pgf@y by.5\pgf@xa
+	}
+	\anchor{symbol south east}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@x by.5\pgf@xa
+		\advance\pgf@y by-.5\pgf@xa
+	}
+	\anchor{symbol south west}{
+		\symcenter
+		\pgf@xa=\symsize
+		\advance\pgf@x by-.5\pgf@xa
+		\advance\pgf@y by-.5\pgf@xa
+	}
+	\anchor{north}{\northeast \pgf@x=0pt}%
+	\anchor{east}{\northeast \pgf@y=0pt}%
+	\anchor{south}{\southwest \pgf@x=0pt}%
+	\anchor{west}{\southwest \pgf@y=0pt}%
+	\anchor{north east}{\northeast}%
+	\anchor{south west}{\southwest}%
+	\anchor{north west}{
+		\northeast \pgf@ya=\pgf@y
+		\southwest \pgf@y=\pgf@ya
+	}
+	\anchor{south east}{
+		\northeast \pgf@xa=\pgf@x
+		\southwest \pgf@x=\pgf@xa
+	}
+	\backgroundpath{%
+		
+		\symcenter \pgf@xc=\pgf@x \pgf@yc=\pgf@y
+		
+		\pgfmathparse{\pgf@xc+(0.5*\symsize)}
+		\let\east\pgfmathresult
+		\pgfmathparse{\pgf@yc+(0.5*\symsize)}
+		\let\north\pgfmathresult
+		\pgfmathparse{\pgf@xc-(0.5*\symsize)}
+		\let\west\pgfmathresult
+		\pgfmathparse{\pgf@yc-(0.5*\symsize)}
+		\let\south\pgfmathresult
+		
+		\pgfseteorule
+		
+		\str@ifmatchelse{\pgfcomptype}{material}{
+			\pgfpathcircle{\pgfpoint{\east-(0.22*\symsize)}{\south+(0.22*\symsize)}}{0.22*\symsize}
+			\pgfpathcircle{\pgfpoint{\west+(0.22*\symsize)}{\south+(0.22*\symsize)}}{0.22*\symsize}
+			\pgfpathcircle{\pgfpoint{\east-(0.5*\symsize)}{\north-(0.22*\symsize)}}{0.22*\symsize}
+		}{}
+		
+		\str@ifmatchelse{\pgfcomptype}{somatic}{
+			\pgfpathmoveto{\pgfpoint{\west+(0.15*\symsize)}{\north-(0.7*\symsize)}}
+			\pgfpatharc{200}{20}{0.42*\symsize and 0.5*\symsize}
+			\pgfpatharc{20}{200}{0.32*\symsize and 0.4*\symsize}
+			\pgfpatharc{20}{200}{0.1*\symsize and 0.1*\symsize}
+			\pgfpathclose
+			\pgfpathmoveto{\pgfpoint{\east-(0.15*\symsize)}{\south+(0.7*\symsize)}}
+			\pgfpatharc{380}{200}{0.42*\symsize and 0.5*\symsize}
+			\pgfpatharc{200}{380}{0.32*\symsize and 0.4*\symsize}
+			\pgfpatharc{200}{380}{0.1*\symsize and 0.1*\symsize}
+			\pgfpathclose
+		}{}
+		
+		\str@ifmatchelse{\pgfcomptype}{verbal}{
+			\pgfpathmoveto{\pgfpoint{\west}{\south+(0.1*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.5*\symsize)}{\north}}
+			\pgfpathlineto{\pgfpoint{\east-(0.4*\symsize)}{\north-(0.05*\symsize)}}
+			\pgfpathclose
+			\pgfpathmoveto{\pgfpoint{\west+(0.1*\symsize)}{\south}}
+			\pgfpathlineto{\pgfpoint{\east}{\north-(0.5*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.05*\symsize)}{\north-(0.4*\symsize)}}
+			\pgfpathclose
+			\pgfpathmoveto{\pgfpoint{\west+(0.1*\symsize)}{\south+(0.1*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.075*\symsize)}{\north}}
+			\pgfpathlineto{\pgfpoint{\east}{\north-(0.075*\symsize)}}
+			\pgfpathclose
+		}{}
+		
+		\str@ifmatchelse{\pgfcomptype}{focus}{
+			\pgfpathcircle{\pgfpoint{\east-(0.5*\symsize)}{\north-(0.5*\symsize)}}{0.5*\symsize}
+			\pgfpathcircle{\pgfpoint{\east-(0.5*\symsize)}{\north-(0.5*\symsize)}}{0.48*\symsize}
+			\pgfpathmoveto{\pgfpoint{\east-(0.5*\symsize)}{\north-(0.45*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.48*\symsize)}{\north-(0.05*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.52*\symsize)}{\north-(0.05*\symsize}}
+			\pgfpathclose
+			\pgfpathmoveto{\pgfpoint{\east-(0.5*\symsize)}{\south+(0.45*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.48*\symsize)}{\south+(0.05*\symsize}}
+			\pgfpathlineto{\pgfpoint{\east-(0.52*\symsize)}{\south+(0.05*\symsize}}
+			\pgfpathclose
+			\pgfpathmoveto{\pgfpoint{\east-(0.45*\symsize)}{\north-(0.5*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.05*\symsize}{\north-(0.48*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.05*\symsize}{\north-(0.52*\symsize)}}
+			\pgfpathclose
+			\pgfpathmoveto{\pgfpoint{\west+(0.45*\symsize)}{\north-(0.5*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\west+(0.05*\symsize}{\north-(0.48*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\west+(0.05*\symsize}{\north-(0.52*\symsize)}}
+			\pgfpathclose
+		}{}
+		
+		\str@ifmatchelse{\pgfcomptype}{divine}{
+			\pgfpathmoveto{\pgfpoint{\west+(0.4*\symsize)}{\north}}
+			\pgfpathlineto{\pgfpoint{\east-(0.4*\symsize)}{\north}}
+			\pgfpathlineto{\pgfpoint{\east-(0.4*\symsize)}{\north-(0.3*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east}{\north-(0.3*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east}{\north-(0.45*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\east-(0.4*\symsize)}{\north-(0.45*\symsize)}}
+			
+			\pgfpathlineto{\pgfpoint{\east-(0.4*\symsize)}{\south}}
+			\pgfpathlineto{\pgfpoint{\west+(0.4*\symsize)}{\south}}
+			
+			\pgfpathlineto{\pgfpoint{\west+(0.4*\symsize)}{\north-(0.45*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\west}{\north-(0.45*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\west}{\north-(0.3*\symsize)}}
+			\pgfpathlineto{\pgfpoint{\west+(0.4*\symsize)}{\north-(0.3*\symsize)}}
+			\pgfpathclose
+		}{}
+	}
+}

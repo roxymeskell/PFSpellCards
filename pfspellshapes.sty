@@ -1,0 +1,1290 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{pfspellshapes}[2018/01/26 Pathfinder Spell Card Tikz Shapes Package]
+
+\RequirePackage{tikz}
+\RequirePackage{etoolbox}
+\RequirePackage{xstring}
+\usetikzlibrary{positioning,calc}
+\usetikzlibrary{backgrounds}
+
+% HELPER
+\newcommand{\str@ifmatchelse}[4]{%
+	\edef\tempa{#1}
+	\edef\tempb{#2}
+	\ifx\tempa\tempb
+	#3
+	\else
+	#4
+	\fi
+}
+
+\pgfkeys{/pgf/.cd,
+	sym type/.store in=\pgfshapesymtype,
+	sym type=target,
+	sym color/.store in=\pgfshapesymcolor,
+	sym color=black,
+	sym size/.store in=\pgfshapesymsize,
+	sym size=1,
+	lbl color/.store in=\pgfshapelblcolor,
+	lbl color=gray,
+	lbl sep/.store in=\pgfshapelblsep,
+	lbl sep=2pt,
+	lbl edge tex/.store in=\pgfshapelbledgetex,
+	lbl edge tex=10pt,
+}
+\tikzoption{symbol type}[]{\pgfkeys{/pgf/sym type=#1}}
+\tikzoption{symbol color}[]{\pgfkeys{/pgf/sym color=#1}}
+\tikzoption{symbol size}[]{\pgfkeys{/pgf/sym size=#1}}
+\tikzoption{label color}[]{\pgfkeys{/pgf/lbl color=#1}}
+\tikzoption{label sep}[]{\pgfkeys{/pgf/lbl sep=#1}}
+\tikzoption{label edge texture}[]{\pgfkeys{/pgf/lbl edge tex=#1}}
+
+\pgfdeclareshape{symbol}{
+	\nodeparts{text}
+	\saveddimen{\radius}{
+		\setlength{\pgf@xa}{\pgfshapeinnerysep}
+		\pgf@x=.5\ht\pgfnodeparttextbox
+		\advance\pgf@x by.5\dp\pgfnodeparttextbox%
+		\advance\pgf@x by\pgf@xa
+		\pgf@x=\pgfshapesymsize\pgf@x
+		\setlength{\pgf@xb}{\pgfshapeminheight}
+		\advance\pgf@xb by2\pgf@xa
+		\ifdim\pgf@x<.5\pgf@xb
+		\pgf@x=.5\pgf@xb
+		\fi
+	}
+	\saveddimen{\boxheight}{
+		\setlength{\pgf@xa}{\pgfshapeinnerysep}
+		\pgf@x=\ht\pgfnodeparttextbox
+		\advance\pgf@x by \dp\pgfnodeparttextbox
+		\advance\pgf@x by2\pgf@xa
+		\setlength{\pgf@xb}{\pgfshapeminheight}
+		\advance\pgf@xb by2\pgf@xa
+		\ifdim\pgf@x<\pgf@xb
+		\pgf@x=\pgf@xb
+		\fi
+	}
+	\savedanchor\symcenterpoint{%
+		% \x = -.5\width + \radius = -.5\sep -\pgfshapeinnerxsep -.5\wd\pgfnodeparttextbox
+		% \width = 2\radius + \sep + 2\pgfshapeinnerxsep + \wd\pgfnodeparttextbox
+		% -.5\width = -\radius - .5\sep - \pgfshapeinnerxsep - .5\wd\pgfnodeparttextbox
+		%\pgf@x=0pt%
+		\pgfmathparse{\ht\pgfnodeparttextbox}
+		\ifnum 0=\pgfmathresult
+		\pgf@x=0pt
+		\else
+		\setlength{\pgf@xa}{\pgfshapeinnerxsep}
+		\pgf@x=-.5\wd\pgfnodeparttextbox
+		\advance\pgf@x by-\pgf@xa
+		\setlength{\pgf@xa}{\pgfshapelblsep}
+		\advance\pgf@x by-.5\pgf@xa
+		\fi
+		\pgf@y=0pt%
+	}
+	\savedanchor\lblcenterpoint{
+		% \x = .5\width -\pgfshapeinnerxsep -.5\wd\pgfnodeparttextbox
+		% \x = \radius +.5\sep
+		% \width = 2\radius + \sep + 2\pgfshapeinnerxsep + \wd\pgfnodeparttextbox
+		% .5\width = \radius +.5\sep +\pgfshapeinnerxsep +.5\wd\pgfnodeparttextbox
+		\setlength{\pgf@xa}{\pgfshapeinnerysep}
+		\pgf@x=.5\ht\pgfnodeparttextbox
+		\advance\pgf@x by.5\dp\pgfnodeparttextbox
+		\advance\pgf@x by\pgf@xa
+		\pgf@x=\pgfshapesymsize\pgf@x
+		\setlength{\pgf@xb}{\pgfshapeminheight}
+		\advance\pgf@xb by2\pgf@xa
+		\ifdim\pgf@x<.5\pgf@xb
+		\pgf@x=.5\pgf@xb
+		\fi
+		\setlength{\pgf@xa}{\pgfshapelblsep}
+		\advance\pgf@x by.5\pgf@xa
+		\pgf@y=0pt%
+	}
+	\savedanchor\lblnortheast{
+		%\message{text box height = \the\ht\pgfnodeparttextbox}
+		% .5\width = \radius +.5\sep +\pgfshapeinnerxsep +.5\wd\pgfnodeparttextbox
+		\setlength{\pgf@xa}{\pgfshapeinnerysep}
+		\pgf@x=.5\ht\pgfnodeparttextbox
+		\advance\pgf@x by .5\dp\pgfnodeparttextbox
+		\advance\pgf@x by\pgf@xa
+		\pgf@x=\pgfshapesymsize\pgf@x
+		\setlength{\pgf@xb}{\pgfshapeminheight}
+		\advance\pgf@xb by2\pgf@xa
+		\ifdim\pgf@x<.5\pgf@xb
+		\pgf@x=.5\pgf@xb
+		\fi
+		\setlength{\pgf@xa}{\pgfshapelblsep}
+		\advance\pgf@x by.5\pgf@xa
+		\setlength{\pgf@xa}{\pgfshapeinnerxsep}
+		\advance\pgf@x by\pgf@xa
+		\advance\pgf@x by.5\wd\pgfnodeparttextbox
+		% .5\textheight = 
+		\setlength{\pgf@xa}{\pgfshapeinnerysep}
+		\pgf@y=.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox
+		\advance\pgf@y by\pgf@xa
+		\pgfmathparse{\ht\pgfnodeparttextbox}
+		\ifnum 0=\pgfmathresult
+		\pgf@y=0pt
+		\fi
+	}
+	\savedanchor\lblsouthwest{
+		\setlength{\pgf@xa}{\pgfshapeinnerysep}
+		\pgf@x=.5\ht\pgfnodeparttextbox
+		\advance\pgf@x by .5\dp\pgfnodeparttextbox
+		\advance\pgf@x by\pgf@xa
+		\pgf@x=\pgfshapesymsize\pgf@x
+		\setlength{\pgf@xb}{\pgfshapeminheight}
+		\advance\pgf@xb by2\pgf@xa
+		\ifdim\pgf@x<.5\pgf@xb
+		\pgf@x=.5\pgf@xb
+		\fi
+		\setlength{\pgf@xa}{\pgfshapelblsep}
+		\advance\pgf@x by.5\pgf@xa
+		\setlength{\pgf@xa}{\pgfshapeinnerxsep}
+		\advance\pgf@x by-\pgf@xa
+		\advance\pgf@x by-.5\wd\pgfnodeparttextbox
+		% -.5\textheight = 
+		\setlength{\pgf@xa}{\pgfshapeinnerysep}
+		\pgf@y=.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox
+		\advance\pgf@y by\pgf@xa
+		\pgf@y=-\pgf@y
+		\pgfmathparse{\ht\pgfnodeparttextbox}
+		\ifnum 0=\pgfmathresult
+		\pgf@y=0pt
+		\fi
+	}
+	\savedanchor\northeast{
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\pgf@y=\ht\pgfnodeparttextbox%
+	}
+	\savedanchor\southwest{
+		\pgf@x=-.5\wd\pgfnodeparttextbox%
+		\pgf@y=-\ht\pgfnodeparttextbox%
+	}
+	\anchor{text}{%
+		\lblcenterpoint
+		\advance\pgf@x by-.5\wd\pgfnodeparttextbox
+		\advance\pgf@y by-.5\ht\pgfnodeparttextbox
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox
+	}
+	\anchor{symbol center}{\symcenterpoint}
+	\anchor{center}{\pgf@x=0pt \pgf@y=0pt}
+	\anchor{north}{\pgf@x=0pt \pgf@y=\radius}
+	\anchor{south}{\pgf@x=0pt \pgf@y=-\radius}
+	\anchor{east}{
+		\pgfmathparse{\ht\pgfnodeparttextbox}
+		\ifnum 0=\pgfmathresult
+		\pgf@xc=\radius
+		\symcenterpoint
+		\advance\pgf@x by\pgf@xc
+		\else
+		\lblcenterpoint
+		\advance\pgf@x by.5\wd\pgfnodeparttextbox
+		\setlength{\pgf@xa}{\pgfshapeinnerxsep}
+		\advance\pgf@x by\pgf@xa
+		\fi
+		\pgf@y=0pt
+	}
+	\anchor{west}{
+		\pgf@xc=\radius
+		\symcenterpoint
+		\advance\pgf@x by-\pgf@xc
+	}
+	\behindbackgroundpath{%
+		{
+			\pgfseteorule
+			
+			\str@ifmatchelse{\pgfshapesymtype}{target}{
+				\pgfpathcircle{\symcenterpoint}{\radius}
+				\pgfmathsetlength{\pgf@xb}{\radius * 0.8}
+				\pgfpathcircle{\symcenterpoint}{\pgf@xb}
+				\pgfmathsetlength{\pgf@xb}{\radius * 0.6}
+				\pgfpathcircle{\symcenterpoint}{\pgf@xb}
+				\pgfmathsetlength{\pgf@xb}{\radius * 0.4}
+				\pgfpathcircle{\symcenterpoint}{\pgf@xb}
+				\pgfmathsetlength{\pgf@xb}{\radius * 0.2}
+				\pgfpathcircle{\symcenterpoint}{\pgf@xb}
+			}{}
+			\str@ifmatchelse{\pgfshapesymtype}{time}{
+				\pgfpathcircle{\symcenterpoint}{\radius}
+				\pgfpathmoveto{\symcenterpoint}%
+				\pgfpathlineto{\pgfpointadd{\symcenterpoint}{\pgfpointpolar{75}{0.9*\radius}}}
+				\pgfpatharc{75}{360}{0.9*\radius}
+				\pgfpatharc{0}{45}{0.9*\radius}
+				\pgfpathclose
+			}{}
+			\str@ifmatchelse{\pgfshapesymtype}{duration}{
+				% store lower left in xa/ya and upper right in xb/yb
+				\symcenterpoint \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+				\advance\pgf@xa by-\radius
+				\advance\pgf@ya by-\radius
+				\symcenterpoint \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+				\advance\pgf@xb by\radius
+				\advance\pgf@yb by\radius
+				
+				\pgfmathparse{\pgf@xa}
+				\let\xa\pgfmathresult
+				\pgfmathparse{\pgf@ya}
+				\let\ya\pgfmathresult
+				\pgfmathparse{\pgf@xb}
+				\let\xb\pgfmathresult
+				\pgfmathparse{\pgf@yb}
+				\let\yb\pgfmathresult
+				
+				\pgfmathparse{(\xa + \xb) / 2}
+				\let\xc\pgfmathresult
+				\pgfmathparse{(\ya + \yb) / 2}
+				\let\yc\pgfmathresult
+				
+				\pgfmathparse{atan((\xb-\xa)/(\yb-\ya))}
+				\let\angle\pgfmathresult
+				
+				\pgfmathparse{min((\xb-\xa)/12,(\yb-\ya)/18)}
+				\let\r\pgfmathresult
+				
+				\pgfmathparse{\ya + (\r * (1 + sin(\angle))}
+				\let\yd\pgfmathresult
+				\pgfmathparse{\xa + (\r - (\r*cos(\angle)))}
+				\let\xd\pgfmathresult
+				
+				\pgfmathparse{\yb - (\r * (1 + sin(\angle))}
+				\let\ye\pgfmathresult
+				\pgfmathparse{\xb - (\r - (\r*cos(\angle)))}
+				\let\xe\pgfmathresult
+				
+				\pgfmathparse{((\ye-\yd)/2)-(\r*sin(\angle))};
+				\let\yRun\pgfmathresult
+				\pgfmathparse{\yRun * tan(\angle)}
+				\let\xRun\pgfmathresult
+				
+				
+				\pgfmathparse{\yd + \yRun}
+				\let\yf\pgfmathresult
+				\pgfmathparse{\xd + \xRun}
+				\let\xf\pgfmathresult
+				
+				\pgfmathparse{\ye - \yRun}
+				\let\yg\pgfmathresult
+				\pgfmathparse{\xe - \xRun}
+				\let\xg\pgfmathresult
+				
+				\pgfmathparse{(\yg - \yf)/sin(90-\angle)}
+				\let\rB\pgfmathresult
+				
+				\pgfseteorule
+				
+				\pgfpathmoveto{\pgfpoint{\xa + \r}{\yb}}
+				\pgfpatharc{90}{180 + \angle}{\r} % UL Curve
+				\pgfpathlineto{\pgfpoint{\xf}{\yg}}
+				\pgfpatharc{\angle}{-\angle}{\r} % CL Curve
+				\pgfpathlineto{\pgfpoint{\xd}{\yd}}
+				\pgfpatharc{180-\angle}{270}{\r}  % LL Curve
+				\pgfpathlineto{\pgfpoint{\xb-\r}{\ya}}
+				\pgfpatharc{-90}{\angle}{\r} % LR Curve
+				\pgfpathlineto{\pgfpoint{\xg}{\yf}}
+				\pgfpatharc{180+\angle}{180-\angle}{\r} % CR Curve
+				\pgfpathlineto{\pgfpoint{\xe}{\ye}}
+				\pgfpatharc{-\angle}{90}{\r} % UR Curve
+				\pgfpathlineto{\pgfpoint{\xa + \r}{\yb}}
+				\pgfpathclose
+				
+				\pgfmathparse{0.8}
+				\let\scale\pgfmathresult
+				
+				\pgfmathparse{(\ya+\yd+\yf)/3}
+				\pgfmathparse{(\ya+\yc)/2}
+				\let\yh\pgfmathresult
+				\pgfmathparse{(\yb+\ye+\yg)/3}
+				\pgfmathparse{(\yb+\yc)/2}
+				\let\yi\pgfmathresult
+				
+				\pgfmathparse{\r*\scale}
+				\let\r\pgfmathresult
+				
+				\pgfmathparse{(\scale*(\xa-\xc))+\xc}
+				\let\xa\pgfmathresult
+				\pgfmathparse{(\scale*(\xb-\xc))+\xc}
+				\let\xb\pgfmathresult
+				\pgfmathparse{(\scale*(\xd-\xc))+\xc}
+				\let\xd\pgfmathresult
+				\pgfmathparse{(\scale*(\xe-\xc))+\xc}
+				\let\xe\pgfmathresult
+				\pgfmathparse{(\scale*(\xf-\xc))+\xc}
+				\let\xf\pgfmathresult
+				\pgfmathparse{(\scale*(\xg-\xc))+\xc}
+				\let\xg\pgfmathresult
+				
+				\pgfmathparse{(\scale*(\ya-\yh))+\yh}
+				\let\ya\pgfmathresult
+				\pgfmathparse{(\scale*(\yd-\yh))+\yh}
+				\let\yd\pgfmathresult
+				\pgfmathparse{(\scale*(\yf-\yh))+\yh}
+				\let\yf\pgfmathresult
+				
+				\pgfmathparse{(\scale*(\yb-\yi))+\yi}
+				\let\yb\pgfmathresult
+				\pgfmathparse{(\scale*(\ye-\yi))+\yi}
+				\let\ye\pgfmathresult
+				\pgfmathparse{(\scale*(\yg-\yi))+\yi}
+				\let\yg\pgfmathresult
+				
+				\pgfpathmoveto{\pgfpoint{\xa+\r}{\ya}}
+				\pgfpatharc{270}{180-\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xf}{\yf}}
+				\pgfpatharc{180-\angle}{90}{\r}
+				\pgfpathlineto{\pgfpoint{\xg-(\r*cos(\angle))}{\yf+\r-(\r*sin(\angle))}}
+				\pgfpatharc{90}{\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xe}{\yd}}
+				\pgfpatharc{\angle}{-90}{\r}
+				\pgfpathclose
+				
+				\pgfpathmoveto{\pgfpoint{\xa+\r}{\yb}}
+				\pgfpatharc{90}{180+\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xf}{\yg}}
+				\pgfpatharc{180+\angle}{270}{\r}
+				\pgfpathlineto{\pgfpoint{\xg-(\r*cos(\angle))}{\yg-\r+(\r*sin(\angle))}}
+				\pgfpatharc{270}{360-\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xe}{\ye}}
+				\pgfpatharc{360-\angle}{450}{\r}
+				\pgfpathclose
+				
+				\pgfmathparse{(\scale*(\yh-\yc))+\yc}
+				\let\yh\pgfmathresult
+				\pgfmathparse{(\scale*(\yi-\yc))+\yc}
+				\let\yi\pgfmathresult
+				
+				\pgfmathparse{0.6}
+				\let\scale\pgfmathresult
+				
+				\pgfmathparse{(\scale*(\xa-\xc))+\xc}
+				\let\xa\pgfmathresult
+				\pgfmathparse{(\scale*(\xb-\xc))+\xc}
+				\let\xb\pgfmathresult
+				\pgfmathparse{(\scale*(\xd-\xc))+\xc}
+				\let\xd\pgfmathresult
+				\pgfmathparse{(\scale*(\xe-\xc))+\xc}
+				\let\xe\pgfmathresult
+				\pgfmathparse{(\scale*(\xf-\xc))+\xc}
+				\let\xf\pgfmathresult
+				\pgfmathparse{(\scale*(\xg-\xc))+\xc}
+				\let\xg\pgfmathresult
+				
+				\pgfmathparse{0.5}
+				\let\scale\pgfmathresult
+				
+				\pgfmathparse{\r*\scale}
+				\let\r\pgfmathresult
+				
+				\pgfmathparse{(\scale*(\ya))+\yh}
+				\let\ya\pgfmathresult
+				\pgfmathparse{(\scale*(\yd))+\yh}
+				\let\yd\pgfmathresult
+				\pgfmathparse{(\scale*(\yf))+\yh}
+				\let\yf\pgfmathresult
+				
+				\pgfmathparse{(\scale*(\yb-\yi))+\yi}
+				\let\yb\pgfmathresult
+				\pgfmathparse{(\scale*(\ye-\yi))+\yi}
+				\let\ye\pgfmathresult
+				\pgfmathparse{(\scale*(\yg-\yi))+\yi}
+				\let\yg\pgfmathresult
+				
+				\pgfpathmoveto{\pgfpoint{\xa+\r}{\ya}}
+				\pgfpatharc{270}{180-\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xf}{\yf}}
+				\pgfpatharc{180-\angle}{90}{\r}
+				\pgfpathlineto{\pgfpoint{\xg-(\r*cos(\angle))}{\yf+\r-(\r*sin(\angle))}}
+				\pgfpatharc{90}{\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xe}{\yd}}
+				\pgfpatharc{\angle}{-90}{\r}
+				\pgfpathclose
+				
+				\pgfpathmoveto{\pgfpoint{\xa+\r}{\yb}}
+				\pgfpatharc{90}{180+\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xf}{\yg}}
+				\pgfpatharc{180+\angle}{270}{\r}
+				\pgfpathlineto{\pgfpoint{\xg-(\r*cos(\angle))}{\yg-\r+(\r*sin(\angle))}}
+				\pgfpatharc{270}{360-\angle}{\r}
+				\pgfpathlineto{\pgfpoint{\xe}{\ye}}
+				\pgfpatharc{360-\angle}{450}{\r}
+				\pgfpathclose
+			}{}
+			
+			\str@ifmatchelse{\pgfshapesymcolor}{none}{
+				\color{\pgfshapesymcolor}
+			}{}
+			\color{\pgfshapesymcolor}
+			\pgfusepath{fill}
+		}
+		
+		{
+			\lblsouthwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+			\lblnortheast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+			
+			\pgfmathparse{\pgf@ya}
+			\ifnum 0=\pgfmathresult
+			\else
+			\pgfmathparse{\pgf@yb}
+			\ifnum 0=\pgfmathresult
+			\else
+			
+			\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+			\pgfmathsetlength{\pgf@yc}{\pgfshapelbledgetex}
+			\ifdim\pgf@yc>0.0pt
+			\pgfmathparse{int((\pgf@yb-\pgf@ya)/\pgfshapelbledgetex)}
+			\edef\pgf@end{\pgfmathresult}
+			\else
+			\pgfmathparse{0}
+			\edef\pgf@end{\pgfmathresult}
+			\fi
+			\message{SW:(\the\pgf@xa, \the\pgf@ya) NE:(\the\pgf@xb, \the\pgf@yb)^^J}
+			\message{Looping i from 0 to \pgf@end}
+			\foreach \i in {0,...,\pgf@end}{
+				\message{^^J...i=\i}
+				\foreach \y in {0,0.1,...,1}{
+					\pgfmathparse{\i+\y}
+					\let\yMod\pgfmathresult
+					\pgfmathsetlength{\pgf@yc}{\yMod*\pgfshapelbledgetex}			\pgfmathsetlength{\pgf@yc}{\pgf@yb-\pgf@yc}
+					
+					\pgfmathparse{(rand)/5}
+					\let\xMod\pgfmathresult
+					\ifdim\xMod pt < 0pt
+					\pgfmathparse{0}
+					\let\xMod\pgfmathresult
+					\fi
+					\pgfmathsetlength{\pgf@xc}{\pgf@ya+(0.2*\pgfshapelbledgetex)}
+					\ifdim\pgf@yc<\pgf@xc
+					\pgfmathparse{0}
+					\let\xMod\pgfmathresult
+					\fi
+					\pgfmathsetlength{\pgf@xc}{\pgf@yb-(0.2*\pgfshapelbledgetex)}
+					\ifdim\pgf@yc>\pgf@xc
+					\pgfmathparse{0}
+					\let\xMod\pgfmathresult
+					\fi
+					\pgfmathsetlength{\pgf@xc}{\xMod*\pgfshapelbledgetex}
+					\pgfmathsetlength{\pgf@xc}{\pgf@xa+\pgf@xc}
+					
+					\message{^^J......yMod=\yMod. xMod=\xMod}
+					
+					\ifdim\pgf@yc<\pgf@ya
+					\message{...Breaking. y=\the\pgf@yc. yS=\the\pgf@ya.}
+					\breakforeach
+					\else
+					\message{...Drawing Line. (\the\pgf@xc, \the\pgf@yc)}
+					\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+					\fi
+				}
+			}
+			\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+			\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+			\foreach \i in {0,...,\pgf@end}{
+				\foreach \y in {0,0.1,...,1}{
+					\pgfmathparse{\i+\y}
+					\let\yMod\pgfmathresult
+					\pgfmathsetlength{\pgf@yc}{\yMod*\pgfshapelbledgetex}			\pgfmathsetlength{\pgf@yc}{\pgf@ya+\pgf@yc}
+					
+					\pgfmathparse{(rand)/5}
+					\let\xMod\pgfmathresult
+					\ifdim\xMod pt < 0pt
+					\pgfmathparse{0}
+					\let\xMod\pgfmathresult
+					\fi
+					\pgfmathsetlength{\pgf@xc}{\pgf@ya+(0.2*\pgfshapelbledgetex)}
+					\ifdim\pgf@yc<\pgf@xc
+					\pgfmathparse{0}
+					\let\xMod\pgfmathresult
+					\fi
+					\pgfmathsetlength{\pgf@xc}{\pgf@yb-(0.2*\pgfshapelbledgetex)}
+					\ifdim\pgf@yc>\pgf@xc
+					\pgfmathparse{0}
+					\let\xMod\pgfmathresult
+					\fi
+					\pgfmathsetlength{\pgf@xc}{\xMod*\pgfshapelbledgetex}
+					\pgfmathsetlength{\pgf@xc}{\pgf@xb-\pgf@xc}
+					
+					\ifdim\pgf@yc>\pgf@yb
+					\breakforeach
+					\else
+					\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+					\fi
+				}
+			}
+			\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+			\pgfpathclose
+			
+			\str@ifmatchelse{\pgfshapelblcolor}{none}{
+				\color{\pgfshapelblcolor}
+			}{}
+			\color{\pgfshapelblcolor}
+			\pgfusepath{fill}
+			
+			\fi
+			\fi
+		}
+	}
+}
+
+% ********************
+% UNDERLINE LABELED TEXTBOX
+% ********************
+
+\newbox\pgfnodepartcontentbox
+\pgfdeclareshape{underline}{%
+	\nodeparts{text,content}
+	\savedanchor\northeast{
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\fi%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\pgf@y=.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by\pgfshapeinnerysep
+		%\advance\pgf@y by\pgfshapeinnerysep
+	}
+	\savedanchor\southwest{
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\fi%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\pgf@x=-\pgf@x
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by-\pgfshapeinnerysep
+		%\advance\pgf@y by-\pgfshapeinnerysep
+	}
+	\savedanchor\ulinewest{%
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\fi%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\pgf@x=-\pgf@x
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+	}
+	\savedanchor\textanchor{%
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\fi%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\advance\pgf@x by-\pgfshapeinnerxsep
+		\pgf@x=-\pgf@x
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by\pgfshapeinnerysep
+	}
+	\savedanchor\contentanchor{%
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\fi%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\advance\pgf@x by-\pgfshapeinnerxsep
+		\pgf@x=-\pgf@x
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox
+		\advance\pgf@y by-\pgfshapeinnerysep
+	}
+	\anchor{text}{\textanchor}
+	\anchor{content}{\contentanchor}
+	\anchor{center}{\pgf@x=0pt \pgf@y=0pt}%
+	\anchor{north}{\northeast \pgf@x=0pt}%
+	\anchor{east}{\northeast \pgf@y=0pt}%
+	\anchor{south}{\southwest \pgf@x=0pt}%
+	\anchor{west}{\southwest \pgf@y=0pt}%
+	\anchor{north east}{\northeast}%
+	\anchor{south west}{\southwest}%
+	\anchor{north west}{
+		\northeast \pgf@ya=\pgf@y
+		\southwest \pgf@y=\pgf@ya
+	}
+	\anchor{south east}{
+		\northeast \pgf@xa=\pgf@x
+		\southwest \pgf@x=\pgf@xa
+	}
+	\backgroundpath{%
+		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		
+		\ulinewest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+	}
+}
+
+% ********************
+% LABELED CONTENT TEXTBOX
+% ********************
+
+\newbox\pgfnodepartlabelbox
+\pgfdeclareshape{labeled}{%
+	\nodeparts{label,content}
+	\savedanchor\northeast{
+		% Get X
+		\pgf@x=.5\wd\pgfnodepartlabelbox%
+		\advance\pgf@x by.5\wd\pgfnodepartcontentbox%
+		\advance\pgf@x by1.5\pgfshapeinnerxsep
+		% GET Y
+		\pgf@y=\pgfshapeinnerysep
+		\pgf@ya=.5\ht\pgfnodepartlabelbox%
+		\advance\pgf@ya by.5\dp\pgfnodepartlabelbox%
+		\pgf@yb=.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@yb by.5\dp\pgfnodepartcontentbox%
+		\ifdim\pgf@ya<\pgf@yb%
+		\advance\pgf@y by\pgf@yb%
+		\else%
+		\advance\pgf@y by\pgf@ya%
+		\fi%
+	}
+	\savedanchor\southwest{
+		\pgf@xa=\pgf@x
+		\pgf@ya=\pgf@y
+		\pgf@x=-\pgf@xa
+		\pgf@y=-\pgf@ya
+	}
+	% Values for nodepart anchors
+	\saveddimen{\contentwest}{%
+		\pgf@x=-\pgf@x%
+		\pgf@xa=\wd\pgfnodepartcontentbox%
+		\advance\pgf@x by-\pgf@xa%
+		\advance\pgf@x by-\pgfshapeinnerxsep%
+		%\message{Content West = \the\pgf@x^^J}
+	}
+	\saveddimen{\labeleast}{%
+		\advance\pgf@x by-\pgfshapeinnerxsep%
+		%\message{Label East = \the\pgf@x^^J}
+	}
+	\saveddimen{\labelwest}{%
+		\advance\pgf@x by-\wd\pgfnodepartlabelbox%
+		%\message{Label East = \the\pgf@x^^J}
+	}
+	\saveddimen{\labelsouth}{%
+		\pgf@x=-\pgf@y%
+		\pgf@xa=\ht\pgfnodepartlabelbox%
+		\advance\pgf@xa by\dp\pgfnodepartlabelbox%
+		\advance\pgf@x by-\pgf@xa%
+		\advance\pgf@x by-\pgfshapeinnerysep%
+		%\message{A South = \the\pgf@x^^J}
+	}
+	\saveddimen{\contentsouth}{%
+		\pgf@x=-\pgf@y%
+		\pgf@xa=\ht\pgfnodepartcontentbox%
+		\advance\pgf@xa by\dp\pgfnodepartlabelbox%
+		%\advance\pgf@xa by\dp\pgfnodepartcontentbox%
+		\advance\pgf@x by-\pgf@xa%
+		\advance\pgf@x by-\pgfshapeinnerysep%
+		%\message{A South = \the\pgf@x^^J}
+	}
+	\anchor{label}{%
+		\pgf@y=\labelsouth%
+		\pgf@x=\labelwest%
+	}%
+	\anchor{content}{%
+		\pgf@y=\labelsouth%
+		\pgf@x=\contentwest%
+	}%
+	%
+	\anchor{label south east}{%
+		\southwest
+		\pgf@x=\labeleast%
+	}%
+	\anchor{label north east}{%
+		\northeast
+		\pgf@x=\labeleast%
+	}%
+	%
+	\anchor{center}{\pgf@x=0pt \pgf@y=0pt}%
+	\anchor{north}{\northeast \pgf@x=0pt}%
+	\anchor{east}{\northeast \pgf@y=0pt}%
+	\anchor{south}{\southwest \pgf@x=0pt}%
+	\anchor{west}{\southwest \pgf@y=0pt}%
+	\anchor{north east}{\northeast}%
+	\anchor{south west}{\southwest}%
+	\anchor{north west}{
+		\northeast \pgf@ya=\pgf@y
+		\southwest \pgf@y=\pgf@ya
+	}
+	\anchor{south east}{
+		\northeast \pgf@xa=\pgf@x
+		\southwest \pgf@x=\pgf@xa
+	}
+}
+
+% ********************
+% 4 LABELED DETAILS TEXTBOX
+% ********************
+
+\newbox\pgfnodepartlabelabox
+\newbox\pgfnodepartlabelbbox
+\newbox\pgfnodepartlabelcbox
+\newbox\pgfnodepartlabeldbox
+\newbox\pgfnodepartcontentabox
+\newbox\pgfnodepartcontentbbox
+\newbox\pgfnodepartcontentcbox
+\newbox\pgfnodepartcontentdbox
+\pgfdeclareshape{details}{%
+	%\nodeparts{text,content}
+	\nodeparts{labela,contenta,labelb,contentb,labelc,contentc,labeld,contentd}
+	\savedanchor\northeast{
+		% Get X
+		\pgf@x=.5\wd\pgfnodepartlabelabox%
+		\advance\pgf@x by.5\wd\pgfnodepartcontentabox%
+		\pgf@xa=.5\wd\pgfnodepartlabelbbox%
+		\advance\pgf@xa by.5\wd\pgfnodepartcontentbbox%
+		\ifdim\pgf@x<\pgf@xa%
+		\pgf@x=\pgf@xa%
+		\fi%
+		\pgf@xa=.5\wd\pgfnodepartlabelcbox%
+		\advance\pgf@xa by.5\wd\pgfnodepartcontentcbox%
+		\ifdim\pgf@x<\pgf@xa%
+		\pgf@x=\pgf@xa%
+		\fi%
+		\pgf@xa=.5\wd\pgfnodepartlabeldbox%
+		\advance\pgf@xa by.5\wd\pgfnodepartcontentdbox%
+		\ifdim\pgf@x<\pgf@xa%
+		\pgf@x=\pgf@xa%
+		\fi%
+		\advance\pgf@x by1.5\pgfshapeinnerxsep
+		% GET Y
+		\pgf@y=2.5\pgfshapeinnerysep
+		% A
+		\pgf@ya=.5\ht\pgfnodepartlabelabox%
+		\advance\pgf@ya by.5\dp\pgfnodepartlabelabox%
+		\pgf@yb=.5\ht\pgfnodepartcontentabox%
+		\advance\pgf@yb by.5\dp\pgfnodepartcontentabox%
+		\ifdim\pgf@ya<\pgf@yb%
+		\advance\pgf@y by\pgf@yb%
+		\else%
+		\advance\pgf@y by\pgf@ya%
+		\fi%
+		% B
+		\pgf@ya=.5\ht\pgfnodepartlabelbbox%
+		\advance\pgf@ya by.5\dp\pgfnodepartlabelbbox%
+		\pgf@yb=.5\ht\pgfnodepartcontentbbox%
+		\advance\pgf@yb by.5\dp\pgfnodepartcontentbbox%
+		\ifdim\pgf@ya<\pgf@yb%
+		\advance\pgf@y by\pgf@yb%
+		\else%
+		\advance\pgf@y by\pgf@ya%
+		\fi%
+		% C
+		\pgf@ya=.5\ht\pgfnodepartlabelcbox%
+		\advance\pgf@ya by.5\dp\pgfnodepartlabelcbox%
+		\pgf@yb=.5\ht\pgfnodepartcontentcbox%
+		\advance\pgf@yb by.5\dp\pgfnodepartcontentcbox%
+		\ifdim\pgf@ya<\pgf@yb%
+		\advance\pgf@y by\pgf@yb%
+		\else%
+		\advance\pgf@y by\pgf@ya%
+		\fi%
+		% D
+		\pgf@ya=.5\ht\pgfnodepartlabeldbox%
+		\advance\pgf@ya by.5\dp\pgfnodepartlabeldbox%
+		\pgf@yb=.5\ht\pgfnodepartcontentdbox%
+		\advance\pgf@yb by.5\dp\pgfnodepartcontentdbox%
+		\ifdim\pgf@ya<\pgf@yb%
+		\advance\pgf@y by\pgf@yb%
+		\else%
+		\advance\pgf@y by\pgf@ya%
+		\fi%
+		\showthe\pgf@y
+		%		% OLD
+		%		%
+		%		\pgf@x=.5\wd\pgfnodeparttextbox%
+		%		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		%		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		%		\fi%
+		%		\advance\pgf@x by\pgfshapeinnerxsep
+		%		\let\holdxa\pgf@xa
+		%		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		%		\ifdim \pgf@x<.5\pgf@xa
+		%		\pgf@x=.5\pgf@xa
+		%		\fi
+		%		\let\pgf@xa\holdxa
+		%		\pgf@y=.5\ht\pgfnodeparttextbox%
+		%		\advance\pgf@y by.5\ht\pgfnodepartcontentbox%
+		%		\advance\pgf@y by.5\dp\pgfnodeparttextbox%
+		%		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+		%		\advance\pgf@y by\pgfshapeinnerysep
+		%		%\advance\pgf@y by\pgfshapeinnerysep
+	}
+	\savedanchor\southwest{
+		\pgf@xa=\pgf@x
+		\pgf@ya=\pgf@y
+		\pgf@x=-\pgf@xa
+		\pgf@y=-\pgf@ya
+		%		% OLD
+		%		\pgf@x=.5\wd\pgfnodeparttextbox%
+		%		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		%		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		%		\fi%
+		%		\advance\pgf@x by\pgfshapeinnerxsep
+		%		\let\holdxa\pgf@xa
+		%		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		%		\ifdim \pgf@x<.5\pgf@xa
+		%		\pgf@x=.5\pgf@xa
+		%		\fi
+		%		\let\pgf@xa\holdxa
+		%		\pgf@x=-\pgf@x
+		%		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		%		\advance\pgf@y by-.5\ht\pgfnodepartcontentbox%
+		%		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+		%		\advance\pgf@y by-.5\dp\pgfnodepartcontentbox%
+		%		\advance\pgf@y by-\pgfshapeinnerysep
+		%		%\advance\pgf@y by-\pgfshapeinnerysep
+	}
+	% Nodepart Anchors = South West Corner
+	% Labels & Content: Cooresponding have same South
+	% Content: Same West as other content
+	% Labels: Same East. East = Content West - sep. West = East - Width
+	% Did not consider text wrapping, meh
+	\saveddimen{\contentwest}{%
+		\message{Content West}
+		\showthe\pgf@x
+		% ??
+		\pgf@x=-\pgf@x%
+		\pgf@xa=\wd\pgfnodepartcontentabox%
+		\pgf@xb=\wd\pgfnodepartcontentbbox%
+		\ifdim\pgf@xa<\pgf@xb%
+		\pgf@xa=\pgf@xb%
+		\fi%
+		\pgf@xb=\wd\pgfnodepartcontentcbox%
+		\ifdim\pgf@xa<\pgf@xb%
+		\pgf@xa=\pgf@xb%
+		\fi%
+		\pgf@xb=\wd\pgfnodepartcontentdbox%
+		\ifdim\pgf@xa<\pgf@xb%
+		\pgf@xa=\pgf@xb%
+		\fi%
+		\advance\pgf@x by-\pgf@xa%
+		\advance\pgf@x by-\pgfshapeinnerxsep%
+		\message{Content West = \the\pgf@x^^J}
+	}
+	\saveddimen{\labeleast}{%
+		\advance\pgf@x by-\pgfshapeinnerxsep%
+		\message{Label East = \the\pgf@x^^J}
+	}
+	\saveddimen{\asouth}{%
+		\pgf@x=-\pgf@y%
+		\pgf@xa=\ht\pgfnodepartlabelabox%
+		\advance\pgf@xa by\dp\pgfnodepartlabelabox%
+		\pgf@xb=\ht\pgfnodepartcontentabox%
+		\advance\pgf@xb by\dp\pgfnodepartcontentabox%
+		\ifdim\pgf@xa<\pgf@xb%
+		\advance\pgf@x by-\pgf@xb%
+		\else%
+		\advance\pgf@x by-\pgf@xa%
+		\fi%
+		\advance\pgf@x by-\pgfshapeinnerysep%
+		\message{A South = \the\pgf@x^^J}
+	}
+	\saveddimen{\bsouth}{%
+		%\pgf@x=\pgf@y%
+		\pgf@xa=\ht\pgfnodepartlabelbbox%
+		\advance\pgf@xa by\dp\pgfnodepartlabelbbox%
+		\pgf@xb=\ht\pgfnodepartcontentbbox%
+		\advance\pgf@xb by\dp\pgfnodepartcontentbbox%
+		\ifdim\pgf@xa<\pgf@xb%
+		\advance\pgf@x by-\pgf@xb%
+		\else%
+		\advance\pgf@x by-\pgf@xa%
+		\fi%
+		\advance\pgf@x by-\pgfshapeinnerysep%
+		\message{B South = \the\pgf@x^^J}
+	}
+	\saveddimen{\csouth}{%
+		%\pgf@x=\pgf@y%
+		\pgf@xa=\ht\pgfnodepartlabelcbox%
+		\advance\pgf@xa by\dp\pgfnodepartlabelcbox%
+		\pgf@xb=\ht\pgfnodepartcontentcbox%
+		\advance\pgf@xb by\dp\pgfnodepartcontentcbox%
+		\ifdim\pgf@xa<\pgf@xb%
+		\advance\pgf@x by-\pgf@xb%
+		\else%
+		\advance\pgf@x by-\pgf@xa%
+		\fi%
+		\advance\pgf@x by-\pgfshapeinnerysep%
+		\message{C South = \the\pgf@x^^J}
+	}
+	\saveddimen{\dsouth}{%
+		%\pgf@x=\pgf@y%
+		\pgf@xa=\ht\pgfnodepartlabeldbox%
+		\advance\pgf@xa by\dp\pgfnodepartlabeldbox%
+		\pgf@xb=\ht\pgfnodepartcontentbbox%
+		\advance\pgf@xb by\dp\pgfnodepartcontentdbox%
+		\ifdim\pgf@xa<\pgf@xb%
+		\advance\pgf@x by-\pgf@xb%
+		\else%
+		\advance\pgf@x by-\pgf@xa%
+		\fi%
+		\advance\pgf@x by-\pgfshapeinnerysep%
+		\message{D South = \the\pgf@x^^J}
+	}
+	%\savedanchor\labelaanchor{}
+	%	\savedanchor\textanchor{%
+	%		\pgf@x=.5\wd\pgfnodeparttextbox%
+	%		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+	%		\pgf@x=.5\wd\pgfnodepartcontentbox%
+	%		\fi%
+	%		\advance\pgf@x by\pgfshapeinnerxsep
+	%		\let\holdxa\pgf@xa
+	%		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+	%		\ifdim \pgf@x<.5\pgf@xa
+	%		\pgf@x=.5\pgf@xa
+	%		\fi
+	%		\let\pgf@xa\holdxa
+	%		\advance\pgf@x by-\pgfshapeinnerxsep
+	%		\pgf@x=-\pgf@x
+	%		\pgf@y=-.5\ht\pgfnodeparttextbox%
+	%		\advance\pgf@y by.5\ht\pgfnodepartcontentbox%
+	%		\advance\pgf@y by.5\dp\pgfnodeparttextbox%
+	%		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+	%		\advance\pgf@y by\pgfshapeinnerysep
+	%	}
+	%	\savedanchor\contentanchor{%
+	%		\pgf@x=.5\wd\pgfnodeparttextbox%
+	%		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+	%		\pgf@x=.5\wd\pgfnodepartcontentbox%
+	%		\fi%
+	%		\advance\pgf@x by\pgfshapeinnerxsep
+	%		\let\holdxa\pgf@xa
+	%		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+	%		\ifdim \pgf@x<.5\pgf@xa
+	%		\pgf@x=.5\pgf@xa
+	%		\fi
+	%		\let\pgf@xa\holdxa
+	%		\advance\pgf@x by-\pgfshapeinnerxsep
+	%		\pgf@x=-\pgf@x
+	%		\pgf@y=-.5\ht\pgfnodeparttextbox%
+	%		\advance\pgf@y by-.5\ht\pgfnodepartcontentbox%
+	%		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+	%		\advance\pgf@y by.5\dp\pgfnodepartcontentbox
+	%		\advance\pgf@y by-\pgfshapeinnerysep
+	%	}
+	%\anchor{text}{\textanchor}
+	%\anchor{content}{\contentanchor}
+	\anchor{labela}{
+		\pgf@y=\asouth%
+		\pgf@x=\labeleast%
+		\advance\pgf@x by-\wd\pgfnodepartlabelabox%
+		\message{LabelA: (\the\pgf@x, \the\pgf@y)^^J}
+	}%
+	\anchor{contenta}{%
+		\pgf@y=\asouth%
+		\pgf@x=\contentwest%
+		\message{ContentA: (\the\pgf@x, \the\pgf@y)^^J}%
+	}%
+	\anchor{labelb}{%
+		\pgf@y=\bsouth%
+		\pgf@x=\labeleast%
+		\advance\pgf@x by-\wd\pgfnodepartlabelbbox%
+	}%
+	\anchor{contentb}{%
+		\pgf@y=\bsouth%
+		\pgf@x=\contentwest%
+	}%
+	\anchor{labelc}{%
+		\pgf@y=\csouth%
+		\pgf@x=\labeleast%
+		\advance\pgf@x by-\wd\pgfnodepartlabelcbox%
+	}%
+	\anchor{contentc}{%
+		\pgf@y=\csouth%
+		\pgf@x=\contentwest%
+	}%
+	\anchor{labeld}{%
+		\pgf@y=\dsouth%
+		\pgf@x=\labeleast%
+		\advance\pgf@x by-\wd\pgfnodepartlabeldbox%
+	}%
+	\anchor{contentd}{%
+		\pgf@y=\dsouth%
+		\pgf@x=\contentwest%
+	}%
+	%
+	\anchor{center}{\pgf@x=0pt \pgf@y=0pt}%
+	\anchor{north}{\northeast \pgf@x=0pt}%
+	\anchor{east}{\northeast \pgf@y=0pt}%
+	\anchor{south}{\southwest \pgf@x=0pt}%
+	\anchor{west}{\southwest \pgf@y=0pt}%
+	\anchor{north east}{\northeast}%
+	\anchor{south west}{\southwest}%
+	\anchor{north west}{
+		\northeast \pgf@ya=\pgf@y
+		\southwest \pgf@y=\pgf@ya
+	}
+	\anchor{south east}{
+		\northeast \pgf@xa=\pgf@x
+		\southwest \pgf@x=\pgf@xa
+	}
+	\backgroundpath{%
+		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		
+		\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+		
+		\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+		
+		\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+		
+		\pgfpathmoveto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+		\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+		
+		\pgfpathmoveto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+		
+		\pgfpathcircle{\pgfpoint{0}{0}}{1pt}
+		
+		\color{gray}
+		\pgfusepath{fill}
+		%		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		%		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		%		
+		%		\ulinewest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		%		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		%		\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+		%		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+	}
+}
+
+% ********************
+% VERTICAL RIGHT LINE TEXTBOX
+% ********************
+
+\pgfdeclareshape{rightline}{%
+	\nodeparts{text,content}
+	\savedanchor\northeast{
+		% Get X
+		\pgf@x=.5\wd\pgfnodepartcontentbox
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		% Get Y
+		\pgf@y=.5\ht\pgfnodepartcontentbox
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by\pgfshapeinnerysep
+	}
+	\savedanchor\southwest{
+		% Get X
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\pgf@x=-\pgf@x
+		% Get Y
+		\pgf@y=-.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by-.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by-\pgfshapeinnerysep
+	}
+	\savedanchor\contentanchor{%
+		% Get X
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\advance\pgf@x by-\pgfshapeinnerxsep
+		\pgf@x=-\pgf@x
+		% Get Y
+		\pgf@y=-.5\ht\pgfnodepartcontentbox
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox
+	}
+	\anchor{content}{\contentanchor}
+	\anchor{center}{\pgf@x=0pt \pgf@y=0pt}%
+	\anchor{north}{\northeast \pgf@x=0pt}%
+	\anchor{east}{\northeast \pgf@y=0pt}%
+	\anchor{south}{\southwest \pgf@x=0pt}%
+	\anchor{west}{\southwest \pgf@y=0pt}%
+	\anchor{north east}{\northeast}%
+	\anchor{south west}{\southwest}%
+	\anchor{north west}{
+		\northeast \pgf@ya=\pgf@y
+		\southwest \pgf@y=\pgf@ya
+	}
+	\anchor{south east}{
+		\northeast \pgf@xa=\pgf@x
+		\southwest \pgf@x=\pgf@xa
+	}
+	\backgroundpath{%
+		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		\pgfpathmoveto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+	}
+}
+
+% ********************
+% BANNER SHAPE
+% ********************
+\pgfkeys{/pgf/.cd,
+	banner point/.store in=\pgfshapebanpt,
+	banner point=5pt,
+	edge sep/.store in=\pgfshapeedgesep,
+	edge sep=0pt,
+}
+\tikzoption{banner point}[]{\pgfkeys{/pgf/banner point=#1}}
+\tikzoption{edge sep}[]{\pgfkeys{/pgf/edge sep=#1}}
+\pgfdeclareshape{banner}{%
+	\nodeparts{text,content}
+	\savedanchor\northeast{
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\fi%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\advance\pgf@x by\pgfshapeedgesep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\pgf@y=.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by\pgfshapeinnerysep
+		%\advance\pgf@y by\pgfshapeinnerysep
+		\advance\pgf@y by\pgfshapeedgesep
+	}
+	\savedanchor\southwest{
+		\pgf@x=.5\wd\pgfnodeparttextbox%
+		\ifdim\pgf@x<.5\wd\pgfnodepartcontentbox%
+		\pgf@x=.5\wd\pgfnodepartcontentbox%
+		\fi%
+		\advance\pgf@x by\pgfshapeinnerxsep
+		\advance\pgf@x by\pgfshapeedgesep
+		\let\holdxa\pgf@xa
+		\pgfmathsetlength{\pgf@xa}{\pgfshapeminwidth}
+		\ifdim \pgf@x<.5\pgf@xa
+		\pgf@x=.5\pgf@xa
+		\fi
+		\let\pgf@xa\holdxa
+		\pgf@x=-\pgf@x
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by-\pgfshapeinnerysep
+		%\advance\pgf@y by-\pgfshapeinnerysep
+		\advance\pgf@y by-\pgfshapeedgesep
+	}
+	\savedanchor\south{
+		\pgf@x=0pt
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by-\pgfshapeinnerysep
+		%\advance\pgf@y by-\pgfshapeinnerysep
+		\advance\pgf@y by-\pgfshapeedgesep
+		\advance\pgf@y by-\pgfshapebanpt
+	}
+	\savedanchor\textanchor{%
+		\pgf@x=.5\wd\pgfnodeparttextbox
+		\pgf@x=-\pgf@x
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox%
+		\advance\pgf@y by\pgfshapeinnerysep
+	}
+	\savedanchor\contentanchor{
+		\pgf@x=.5\wd\pgfnodepartcontentbox
+		\pgf@x=-\pgf@x
+		\pgf@y=-.5\ht\pgfnodeparttextbox%
+		\advance\pgf@y by-.5\ht\pgfnodepartcontentbox%
+		\advance\pgf@y by-.5\dp\pgfnodeparttextbox%
+		\advance\pgf@y by.5\dp\pgfnodepartcontentbox
+		\advance\pgf@y by-\pgfshapeinnerysep
+	}
+	\anchor{text}{\textanchor}
+	\anchor{content}{\contentanchor}
+	\anchor{center}{\pgf@x=0pt \pgf@y=0pt}%
+	\anchor{north}{\northeast \pgf@x=0pt}%
+	\anchor{east}{\northeast \pgf@y=0pt}%
+	\anchor{south}{\south}%
+	\anchor{west}{\southwest \pgf@y=0pt}%
+	\anchor{north east}{\northeast}%
+	\anchor{south west}{\southwest}%
+	\anchor{north west}{
+		\northeast \pgf@ya=\pgf@y
+		\southwest \pgf@y=\pgf@ya
+	}
+	\anchor{south east}{
+		\northeast \pgf@xa=\pgf@x
+		\southwest \pgf@x=\pgf@xa
+	}
+	\backgroundpath{%
+		\northeast \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\southwest \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		\south \pgf@xc=\pgf@x \pgf@yc=\pgf@y
+		\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{\pgf@xb}{\pgf@yb}}
+		\pgfpathlineto{\pgfpoint{\pgf@xc}{\pgf@yc}}
+		\pgfpathlineto{\pgfpoint{\pgf@xa}{\pgf@yb}}
+		\pgfpathclose
+	}
+}

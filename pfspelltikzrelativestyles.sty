@@ -1,0 +1,410 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{pfspelltikzrelativestyles}[2018/01/26 Pathfinder Spell Card Tikz Relative Styles Package]
+
+\RequirePackage{kvoptions}
+\RequirePackage{tikz}
+\RequirePackage{calc}
+\RequirePackage{l3regex}
+
+% ********************
+% OPTIONS
+% ********************
+\DeclareStringOption [180pt]{cardwidth}[180pt] %\pfspelltikzrelativestyles@cardwidth
+\DeclareStringOption [250pt]{cardheight}[250pt] %\pfspelltikzrelativestyles@cardheight
+\DeclareBoolOption[false]{blackandwhite} %\pfspelltikzrelativestyles@blackandwhite
+
+\ProcessKeyvalOptions*
+
+% ********************
+% COLORS
+% ********************
+\colorlet{bannercolor}{white!25!gray}
+\colorlet{symlabelcolor}{white!40!gray}
+\colorlet{areagridcolor}{white!70!gray}
+\colorlet{areaorigincolor}{white!40!gray}
+\colorlet{mainbannercolor}{gray}
+
+\ifbool{pfspelltikzrelativestyles@blackandwhite}{
+    \colorlet{bannercolor}{black}
+    \colorlet{symlabelcolor}{black}
+    \colorlet{areagridcolor}{black!25!gray}
+    \colorlet{areaorigincolor}{black}
+    \colorlet{mainbannercolor}{black}
+}{}
+
+% ********************
+% RELATIVE LENGTHS
+% ********************
+\newlength{\minwarnlen}
+\setlength{\minwarnlen}{5pt}
+\newlength{\tikzx}
+\newlength{\tikzy}
+\setlength{\tikzx}{\pfspelltikzrelativestyles@cardwidth/180}
+%\message{\ratio{\cardwidth}{\relwidth} ^^J}
+%\setlength{\tikzx}{1pt*\ratio{\cardwidth}{\relwidth}}
+%\showthe\tikzx
+%\setlength{\tikzx}{\tikzx/180}
+%\showthe\tikzx
+\setlength{\tikzy}{\pfspelltikzrelativestyles@cardheight/250}
+\newlength{\tikzminlen}
+\newlength{\tikzmaxlen}
+\ifdim \tikzx > \tikzy%
+	\setlength{\tikzminlen}{\tikzy}%
+	\setlength{\tikzmaxlen}{\tikzx}%
+\else%
+	\setlength{\tikzminlen}{\tikzx}%
+	\setlength{\tikzmaxlen}{\tikzy}%
+\fi%
+
+%% Get description text size (extratiny)
+\newlength{\desctextsize}
+\pgfmathparse{sqrt(20*\tikzx*\tikzy)} % maybe 16 instead of 20
+\setlength{\desctextsize}{\pgfmathresult pt}
+
+%% Get details text size (tiny)
+\newlength{\dettextsize}
+
+%\pgfmathparse{(-15*\tikzx + sqrt((15*\tikzx)^2 + (5400*\tikzx*\tikzy))) / 12}
+%\pgfmathparse{(-15*\tikzx + sqrt((15*\tikzx)^2 + (5460*\tikzx*\tikzy))) / 14}
+
+%((-360*X_PT/2.88)+SQRT((360*X_PT/2.88)^2 + (1562400*X_PT*Y_PT/2.88))/140
+%((-125 * X_PT) + SQRT((360 * X_PT / 2.88)^2 + (542500 * X_PT * Y_PT))) / 140
+
+%\pgfmathparse{((-360*\tikzx/2.88)+sqrt((360*\tikzx/2.88)^2 + (1562400*\tikzx*\tikzy/2.88)))/140}
+\pgfmathparse{5425 * \tikzx}
+\show\pgfmathresult
+\pgfmathparse{((-12.5 * \tikzx) + sqrt((12.5 * \tikzx)^2 + (5425 * \tikzx * \tikzy))) / 14}
+
+
+
+%\pgfmathparse{sqrt(25*\tikzx*\tikzy)}
+
+\setlength{\dettextsize}{\pgfmathresult pt}
+
+\showthe\tikzx
+\showthe\tikzy
+\show\pgfmathresult
+
+\showthe\tikzminlen
+\showthe\desctextsize
+\showthe\dettextsize
+
+\ifdim \desctextsize < \minwarnlen%
+    \PackageWarning{pfspelltikzrelativestyles}{Spell description text size ‘\the\desctextsize’ is less than the recommended minimum size ‘\the\minwarnlen’}%
+\fi%
+\ifdim \dettextsize < \minwarnlen%
+    \PackageWarning{pfspelltikzrelativestyles}{Spell detail text size ‘\the\desctextsize’ is less than the recommended minimum size ‘\the\minwarnlen’}%
+\fi%
+
+%1pt = 1/72.27in
+%(180,250)
+% \pfspelltikzrelativestyles@cardwidth
+% cardwidth * 1pt/72.27in
+
+% ********************
+% FONT SIZES
+% ********************
+% Set custom fontsize
+\newlength{\temptextsize}
+\newcommand\fontsizer[1]{%
+    \pgfmathparse{sqrt(#1*\tikzx*\tikzy)}%
+    \setlength{\temptextsize}{\pgfmathresult pt}%
+    \ifdim \dettextsize < \minwarnlen%
+    \PackageWarning{pfspelltikzrelativestyles}{Spell custom text size ‘\the\temptextsize’ is less than the recommended minimum size ‘\the\minwarnlen’}%
+    \fi%
+    \fontsize{\temptextsize}{\temptextsize}\selectfont%
+}
+%\newcommand\extratinyR{\fontsize{4\tikzminlen}{4\tikzminlen}\selectfont}
+\newcommand\extratinyR{\fontsize{\desctextsize}{\desctextsize}\selectfont}
+%\newcommand\tinyR{\fontsize{5\tikzminlen}{5\tikzminlen}\selectfont}
+\newcommand\tinyR{\fontsize{\dettextsize}{\dettextsize}\selectfont}
+\newcommand\smallR{\fontsize{9\tikzminlen}{9\tikzminlen}\selectfont}
+\newcommand\normalsizeR{\fontsize{10\tikzminlen}{10\tikzminlen}\selectfont}
+\newcommand\LARGER{\fontsize{17.28\tikzminlen}{17.28\tikzminlen}\selectfont}
+%*\tiny	5
+%\scriptsize	7
+%\footnotesize	8
+%*\small	9
+%*\normalsize	10
+%\large	12
+%\Large	14.4
+%*\LARGE	17.28
+
+% ********************
+% TRACKING NEW LINES
+% ********************
+\newlength{\currpgwidth}
+\setlength{\currpgwidth}{\pfspelltikzrelativestyles@cardwidth}
+\newcommand\cardlinebreak{%
+	\addtolength{\currpgwidth}{\pfspelltikzrelativestyles@cardwidth}%
+	\ifdim\currpgwidth<\textwidth%
+	\else%
+	\vspace{-1pt}%
+	\break%
+	\setlength{\currpgwidth}{\pfspelltikzrelativestyles@cardwidth}%
+	\fi%
+}
+
+% ********************
+% TIKZ STYLES
+% ********************
+\tikzset{symbolR/.style={%
+		shape=symbol, anchor=symbol center, label color=symlabelcolor, draw=none,%
+		minimum height=10\tikzy,%
+		white, font=\tinyR,%
+		inner xsep=2\tikzx,%
+		inner ysep=2\tikzy,%
+		symbol size=1.25,%
+		text width=90\tikzx%
+	}%
+}
+\tikzset{areaR/.style={%
+		shape=area,%
+		area width=90\tikzminlen,% 90\tikzminlen
+		area height=4\dettextsize,% 40\tikzminlen; 30\tikzminlen
+		font=\normalsizeR,%
+		grid color=areagridcolor, origin color=areaorigincolor%
+	}%
+}
+\tikzset{ulineR/.style={%
+		every content node part/.style={font=\tinyR}, anchor=north west, font=\bfseries, shape=underline, draw,%
+		inner xsep=2\tikzx,%
+		inner ysep=2\tikzy,%
+	}%
+}
+\tikzset{detailsR/.style={%
+		every labela node part/.style={font=\tinyR\bfseries},%
+		every contenta node part/.style={font=\tinyR},%
+		every labelb node part/.style={font=\tinyR\bfseries},%
+		every contentb node part/.style={font=\tinyR},%
+		every labelc node part/.style={font=\tinyR\bfseries},%
+		every contentc node part/.style={font=\tinyR},%
+		every labeld node part/.style={font=\tinyR\bfseries},%
+		every contentd node part/.style={font=\tinyR},%
+		anchor=north west, shape=details, draw,%
+		inner xsep=\tikzx,%
+		inner ysep=\tikzy,%
+	}%
+}
+\tikzset{labeledR/.style={%
+		every label node part/.style={font=\tinyR\bfseries},%
+		every content node part/.style={font=\tinyR, text width=90\tikzx},%
+		anchor=north west, shape=labeled, draw,%
+		inner xsep=\tikzx,%
+		inner ysep=\tikzy,%
+	}%
+}
+\tikzset{rlineR/.style={%
+		every content node part/.style={font=\extratinyR}, anchor=north west, font=\bfseries, shape=rightline, draw,%
+		inner xsep=\tikzx,%
+		inner ysep=\tikzy,%
+		text width=20\tikzx,%
+		align=right%
+	}%
+}%
+%\tikzset{mainBannerR/.style={%
+%        white, fill=mainbannercolor, shape=rectangle
+%    }%
+%}%
+%\draw[draw=none,fill=mainbannercolor] (0,248) rectangle (180,228);
+%		\node[white,minimum height=16\tikzy,anchor=west,inner sep=0pt](name) at (0.5, 240){\bfseries\normalsizeR \tempname};
+\tikzset{bannerR/.style={%
+		white,%
+		align=center,%
+		every content node part/.style={%
+			font=\LARGER\bfseries,%
+			align=center%
+		},%
+		anchor=north west,%
+		font=\smallR, shape=banner, draw=none, fill=bannercolor,%
+		inner xsep=2\tikzx,%
+		inner ysep=2\tikzy,%
+		edge sep=4\tikzminlen%
+	}%
+}%
+\tikzset{componentR/.style={%
+		font=\tinyR, shape=component symbol, draw=none, fill=black,%
+		inner xsep=2\tikzx,%
+		inner ysep=2\tikzy,%
+		height=20\tikzminlen%
+	}%
+}%
+
+% ********************
+% RELATIVE L3 COMMANDS
+% ********************
+\ExplSyntaxOn
+% Verbal
+\cs_new:Npn \drawverbalR #1 {
+	\exp_args:Noo \isverbal:nn {#1} {\node[componentR, component~type=verbal,below=1\tikzy~of~lvlbanner.south] (verbal) {VERBAL};}
+}
+
+% Somatic
+\cs_new:Npn \drawsomaticR #1 {
+	\exp_args:Noo \issomatic:nn {#1} {\node[componentR, component~type=somatic,below=22\tikzy~of~lvlbanner.south] (somatic) {SOMATIC};}
+}
+
+% Material
+\cs_new:Npn \drawmaterialR #1 {
+	\exp_args:Noo \ismaterial:nn {#1} {\node[componentR, component~type=material,below=45\tikzy~of~lvlbanner.south] (material) {MATERIAL};
+		\node[rlineR, anchor=east, above~left=5\tikzy~and~1\tikzx~of~material.west] (materialComp) {\nodepart{content}\exp_args:No \getmaterialcomps:n {#1}};
+		\draw[dotted] (material.symbol~west) -- (materialComp.east);}
+}
+
+% Focus
+\cs_new:Npn \drawfocusR #1 {
+	\exp_args:Noo \isfocus:nn {#1} {\node[componentR, component~type=focus,below=67\tikzy~of~lvlbanner.south] (focus) {FOCUS};
+		\node[rlineR, anchor=east, above~left=5\tikzy~and~1\tikzx~of~focus.west] (focusComp) {\nodepart{content}\exp_args:No \getfocuscomps:n {#1}};
+		\draw[dotted] (focus.symbol~west) -- (focusComp.east);}
+}
+
+% Divine
+\cs_new:Npn \drawdivineR #1 {
+	\exp_args:Noo \isdivine:nn {#1} {\node[componentR, component~type=divine,below=89\tikzy~of~lvlbanner.south] (divine) {DIVINE FOCUS};}
+}
+
+% Range
+\cs_new:Npn \drawrangeR #1 {
+	\regex_extract_once:nnNTF {.+} { #1 } \l_range_seq
+	{
+		\node[labeledR] (range~details) ~at~ (4,174) {\nodepart{label}Range \nodepart{content} #1};
+	} { 
+	\node[labeledR] (range~details) ~at~ (4,174) {};
+}
+}
+%\node[labeled] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} \temprange};
+
+% Save
+\cs_new:Npn \drawsaveR #1 {
+	\regex_extract_once:nnNTF {.+} { #1 } \l_save_seq
+	{
+		\node[labeledR] (save~details) [below=\tikzy~of~area.south~west, anchor=label~north~east] {\nodepart{label}Save \nodepart{content} #1};
+	} { 
+	\node[labeledR] (save~details) [below=\tikzy~of~area.south~west, anchor=label~north~east] {};
+}
+}
+
+% SR
+\cs_new:Npn \drawsrR #1 {
+	\regex_extract_once:nnNTF {.+} { #1 } \l_sr_seq
+	{
+		\node[labeledR] (sr~details) [below=\tikzy~of~save~details.label~south~east, anchor=label~north~east] {\nodepart{label}SR \nodepart{content} #1};
+	} { 
+	\node[labeledR] (sr~details) [below=\tikzy~of~save~details.label~south~east, anchor=label~north~east] {};
+}
+}
+
+% Area
+\cs_new:Npn \drawareaR #1#2 {
+	\regex_extract_once:nnNTF { (?:[1-9][0-9]*)\s*(?:burst|cone|line) } { #2~#1 } \l_area_seq
+	{
+		\node[labeledR] (area~details) [below=\tikzy~of~range~details.label~south~east, anchor=label~north~east] {\nodepart{label}Area \nodepart{content} #2 ft.~#1};
+		\node[areaR, area~type=#1, area~range=#2, anchor=north~west] (area) [below=1pt~of~area~details.label~south~east, anchor=north~west] {};
+	} { % If no area given
+	\node[labeledR] (area~details) [below=1\tikzy~of~range~details.label~south~east, anchor=label~north~east] {\nodepart{label}Area \nodepart{content} ---};
+	\node[text~height=0pt, text~depth=0pt, outer~ysep=0pt, inner~ysep=0pt] (area) [below=-\tikzy~of~area~details.label~south~east, anchor=north~west] {};
+}
+}
+
+\ExplSyntaxOff
+
+
+% RELATIVE SPELLCARD CONTINUED COMMAND
+\newcommand{\spcardcontinuedR}[5]{%
+	\showthe\baselineskip%
+	\show\baselinestretch%
+	\showthe\columnsep%
+	\showthe\columnwidth%
+	\showthe\evensidemargin%
+	\showthe\linewidth%
+	\showthe\oddsidemargin%
+	\showthe\paperwidth%
+	\showthe\paperheight%
+	\showthe\parindent%
+	\showthe\parskip%
+	\showthe\tabcolsep%
+	\showthe\textheight%
+	\showthe\textwidth%
+	\showthe\topmargin%
+	\showthe\unitlength%
+	%\parskip=0pt%
+	%\parbox[b][\pfspelltikzrelativestyles@cardheight][c]{\pfspelltikzrelativestyles@cardwidth}{%
+	%\setlength{\fboxsep}{0pt}\fbox{%
+	%\parbox[t][\pfspelltikzrelativestyles@cardheight]%
+	%[c]{\pfspelltikzrelativestyles@cardwidth}%
+	%{%
+	\resizebox*{\pfspelltikzrelativestyles@cardwidth}{\pfspelltikzrelativestyles@cardheight}{%
+		\begin{tikzpicture}[x=\tikzx,y=\tikzy]
+		%
+		% Main banner
+		\draw[draw=none,fill=mainbannercolor] (0,248) rectangle (180,228);
+		\node[white,minimum height=16\tikzy,anchor=west,inner sep=0pt](name) at (0.5, 240){\bfseries\normalsizeR \tempname};
+		%\node[draw,black,minimum height=16\tikzy,anchor=west,inner sep=0pt](name) at (0.5, 240){\bfseries\normalsizeR \tempname};
+		\node[white,minimum height=5\tikzy,anchor=west](school) at (1.5, 233) {\extratinyR\tempschool};
+		%
+		% Class/Lvl
+		\node[bannerR, minimum width=32\tikzx, width=30\tikzx](lvlbanner) at (136,250) {\StrBefore{\tempclslvl}{ }\nodepart{content}\StrBehind{\tempclslvl}{ }};
+		%
+		% Components
+		\drawverbalR{\tempcomp}
+		\drawsomaticR{\tempcomp}
+		\drawmaterialR{\tempcomp}
+		\drawfocusR{\tempcomp}
+		\drawdivineR{\tempcomp}
+		%
+		% Target/Casting Time/Duration
+		\node[symbolR,shape=symbol, symbol type=target] (targetSym) at (14,220) {\temptarg};
+		\node[symbolR,shape=symbol, symbol type=time] (timeSym) at (14,204) {\tempct};
+		\node[symbolR,shape=symbol, symbol type=duration] (durSym) at (14,188) {\tempdur};
+		%
+		% Range/Area/Save/SR
+		%\node[labeled] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} \temprange};
+		\ifx\temprange\empty
+		\node[labeledR] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} ---};
+		\else
+		\node[labeledR] (range details) at (4,174) {\nodepart{label}Range \nodepart{content} \temprange};
+		\fi
+		%\drawrange{\temprange}
+		%
+		\drawareaR{#1}{#2}%
+		%
+		\node[labeledR] (save details) [below=1\tikzy of area.south west, anchor=label north east] {\nodepart{label}Save \nodepart{content} #3};%
+		\node[labeledR] (sr details) [below=1\tikzy of save details.label south east, anchor=label north east] {\nodepart{label}SR \nodepart{content} #4};%
+		%
+		% Description
+		\node[ulineR, text width=162\tikzx] (desc) at (4, 103) {\nodepart{content}\extratinyR #5\par};%
+		%
+		% Source
+		\node[gray, anchor=south west, text width=162\tikzx] (source) at (4, 0) {\begin{flushright}\tinyR\em\tempsource\end{flushright}};%
+		%
+		%
+		%\draw[red] (save details.south west) -- (save details.south east);%
+		%
+		%\draw [brown] (current bounding box.south west) rectangle (current bounding box.north east);%
+		%
+		% Border
+		\draw[rounded corners=2pt,black] (0,0) rectangle (180,250);
+		%
+		% TEST MARKS
+		%\draw[red, very thick] (90.5,1) -- (90.5,2);
+		%\draw[red, very thick] (90.5,248) -- (90.5,249);
+		%\draw[red, very thick] (0.5,125.5) -- (2,125.5);
+		%\draw[red, very thick] (178,125.5) -- (179.5,125.5);
+		%\draw[red, dotted] (0,120) -- (0,130);
+		%\draw[red, dotted] (180,120) -- (180,130);
+		% NOTE: Title messing with height
+		\end{tikzpicture}%
+	}%
+%}}% end framebox % parbox
+%	\addtolength{\currpgwidth}{\pfspelltikzrelativestyles@cardwidth}%
+%	\ifdim\currpgwidth<\textwidth%
+%	\else%
+%	\break%
+%	\vspace{-1pt}%
+%	\setlength{\currpgwidth}{\pfspelltikzrelativestyles@cardwidth}%
+%	\fi%
+	\cardlinebreak%
+	%\hspace{-\spacewidth}%
+	%}%
+}
+
